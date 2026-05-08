@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VidXtra — Premium Adult Entertainment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ═══════════════════════════════════════
+       BASE
+    ═══════════════════════════════════════ */
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { background: #09090b; color: #f4f4f5; font-family: sans-serif; }
+    a { text-decoration: none; color: inherit; }
+    input, button, textarea { font-family: inherit; }
+
+    /* Pages */
+    .page { display: none; min-height: 100vh; }
+    .page.active { display: block; }
+
+    /* ═══════════════════════════════════════
+       SHARED UTILITIES
+    ═══════════════════════════════════════ */
+    .gradient-text {
+      background: linear-gradient(90deg,#ef4444,#f97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gradient-text-orange {
+      background: linear-gradient(90deg,#f97316,#ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ═══════════════════════════════════════
+       HOMEPAGE STYLES
+    ═══════════════════════════════════════ */
+    .dark-cinema-1 { background: linear-gradient(135deg,#1a0a1e 0%,#0d1a2e 50%,#0a1a10 100%); }
+    .dark-cinema-2 { background: linear-gradient(135deg,#1e1a0a 0%,#2e0d0d 50%,#1a0a1e 100%); }
+    .dark-cinema-3 { background: linear-gradient(135deg,#0a1a2e 0%,#1e0a1a 50%,#0d2e1a 100%); }
+    .dark-cinema-4 { background: linear-gradient(135deg,#1a0d0a 0%,#0a1e2e 50%,#1e1a0a 100%); }
+    .dark-cinema-5 { background: linear-gradient(135deg,#0d1a0a 0%,#1a0a2e 50%,#2e0d0d 100%); }
+
+    .card-hover-fx { transition: transform .2s ease, box-shadow .2s ease; }
+    .card-hover-fx:hover { transform: scale(1.03); box-shadow: 0 8px 32px rgba(0,0,0,.5); }
+
+    .play-btn-overlay { opacity: 0; transition: opacity .2s; }
+    .vcard:hover .play-btn-overlay { opacity: 1; }
+    .vcard:hover .vcard-title { color: #f87171; }
+
+    .scroll-row {
+      display: flex; overflow-x: auto; gap: 1rem; padding-bottom: 1rem;
+      scrollbar-width: thin; scrollbar-color: #3f3f46 transparent;
+    }
+    .scroll-row::-webkit-scrollbar { height: 6px; }
+    .scroll-row::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+
+    .nav-tab {
+      padding: .375rem .75rem; border-radius: .375rem; font-size: .875rem;
+      font-weight: 500; color: #a1a1aa; cursor: pointer; border: none;
+      background: transparent; transition: color .15s, background .15s;
+    }
+    .nav-tab:hover { color: #fff; background: rgba(255,255,255,.05); }
+    .nav-tab.active { color: #fff; background: rgba(255,255,255,.1); }
+
+    .cat-btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .4rem 1.1rem; border-radius: 9999px;
+      border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.5);
+      color: #d4d4d8; font-size: .875rem; cursor: pointer; white-space: nowrap;
+      transition: background .15s, color .15s;
+    }
+    .cat-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+    @keyframes pulseDot {
+      0%,100% { opacity:1; } 50% { opacity:.4; }
+    }
+    .live-dot { animation: pulseDot 1.5s infinite; }
+
+    .hero-bg {
+      background-image: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2574&auto=format&fit=crop');
+      background-size: cover; background-position: center;
+    }
+
+    /* ═══════════════════════════════════════
+       PLAYER STYLES
+    ═══════════════════════════════════════ */
+    #player-wrap .player-ctrl { opacity:0; transition: opacity .25s; }
+    #player-wrap:hover .player-ctrl { opacity:1; }
+
+    .progress-track { position:relative; height:6px; background:rgba(255,255,255,.2); border-radius:3px; cursor:pointer; }
+    .progress-buffered { position:absolute; left:0; top:0; height:100%; background:rgba(255,255,255,.35); border-radius:3px; width:45%; }
+    .progress-played { position:absolute; left:0; top:0; height:100%; background:#e11d48; border-radius:3px; width:28%; }
+    .progress-thumb { position:absolute; top:50%; right:-5px; width:12px; height:12px; background:#e11d48; border-radius:50%; transform:translateY(-50%); box-shadow:0 0 10px rgba(225,29,72,.8); display:none; }
+    .progress-track:hover .progress-thumb { display:block; }
+
+    .tag-badge {
+      display:inline-block; padding:3px 12px; border-radius:9999px;
+      background:rgba(39,39,42,.5); color:#d4d4d8; font-size:.8125rem;
+      cursor:pointer; border:1px solid transparent; transition:background .15s;
+    }
+    .tag-badge:hover { background:rgba(63,63,70,.8); color:#fff; }
+
+    .related-card { display:flex; gap:12px; padding:8px; border-radius:10px; cursor:pointer; transition:background .15s; }
+    .related-card:hover { background:rgba(39,39,42,.5); }
+    .related-card:hover .rel-title { color:#f87171; }
+
+    .comment-btn { display:flex; align-items:center; gap:6px; font-size:.75rem; color:#71717a; cursor:pointer; border:none; background:none; transition:color .15s; }
+    .comment-btn:hover { color:#d4d4d8; }
+
+    /* ═══════════════════════════════════════
+       AGE GATE STYLES
+    ═══════════════════════════════════════ */
+    .bg-grid-ag {
+      position:fixed; inset:0; display:grid; grid-template-columns:repeat(4,1fr);
+      gap:12px; padding:12px; opacity:.35; filter:blur(10px);
+      transform:scale(1.05); pointer-events:none;
+    }
+    .bg-card-ag { display:flex; flex-direction:column; gap:10px; }
+    .bg-thumb-ag { width:100%; aspect-ratio:16/9; border-radius:8px; }
+
+    .depth-ov { position:fixed; inset:0; background:linear-gradient(to bottom,rgba(9,9,11,.75),rgba(9,9,11,.92),#09090b); pointer-events:none; }
+
+    .gate-card {
+      position:relative; z-index:10; width:100%; max-width:640px;
+      background:rgba(24,24,27,.95); border:1px solid #27272a;
+      border-radius:1.25rem; overflow:hidden;
+      box-shadow:0 25px 60px rgba(0,0,0,.7); backdrop-filter:blur(20px);
+    }
+    .accent-bar { height:4px; background:linear-gradient(to right,#f97316,#dc2626); }
+
+    .enter-btn {
+      flex:1; height:56px; font-size:1rem; font-weight:600; color:#fff;
+      background:#ea580c; border:none; cursor:pointer; border-radius:8px;
+      transition:background .15s, box-shadow .15s;
+      box-shadow:0 0 20px rgba(234,88,12,.3);
+    }
+    .enter-btn:hover { background:#c2410c; box-shadow:0 0 28px rgba(234,88,12,.5); }
+
+    .exit-btn {
+      flex:1; height:56px; font-size:1rem; font-weight:600; color:#d4d4d8;
+      background:transparent; border:1px solid #3f3f46; cursor:pointer;
+      border-radius:8px; transition:background .15s, color .15s;
+    }
+    .exit-btn:hover { background:#27272a; color:#fff; }
+
+    .footer-link { color:#71717a; font-size:.75rem; text-decoration:none; transition:color .15s; }
+    .footer-link:hover { color:#d4d4d8; }
+
+    input[type="checkbox"] { width:18px; height:18px; accent-color:#ea580c; cursor:pointer; margin-top:2px; flex-shrink:0; }
+
+    /* ═══════════════════════════════════════
+       AVATAR COLORS
+    ═══════════════════════════════════════ */
+    .av-1 { background:#3f3f46; }
+    .av-2 { background:#27272a; }
+    .av-3 { background:#18181b; }
+    .av-4 { background:#1c1917; }
+    .av-5 { background:#1e1b4b; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════
+     PAGE 1 — AGE GATE
+════════════════════════════════════════════════════════════ -->
+<div id="page-agegate" class="page active" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem;position:relative;overflow:hidden;">
+
+  <!-- blurred bg -->
+  <div class="bg-grid-ag">
+    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-1"></div><div style="height:14px;border-radius:4px;background:#27272a;width:80%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:55%;"></div></div>
+    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-2"></div><div style="height:14px;border-radius:4px;background:#27272a;width:75%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:50%;"></div></div>
+    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-3"></div><div style="height:14px;border-radius:4px;background:#27272a;width:85%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:60%;"></div></div>
+    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-4"></div><div style="height:14px;border-radius:4px;background:#27272a;width:70%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:45%;"></div></div>
+    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-5"></div><div style="height:14px;border-radius:4px;background:#27272a;width:80%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:55%;"></div></div>
+    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-1"></div><div style="height:14px;border-radius:4px;background:#27272a;width:65%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:40%;"></div></div>
+    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-2"></div><div style="height:14px;border-radius:4px;background:#27272a;width:90%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:65%;"></div></div>
+    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-3"></div><div style="height:14px;border-radius:4px;background:#27272a;width:75%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:50%;"></div></div>
+  </div>
+  <div class="depth-ov"></div>
+
+  <div class="gate-card">
+    <div class="accent-bar"></div>
+    <div style="padding:3rem 2.5rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:1.5rem;">
+
+      <!-- Logo -->
+      <div style="display:flex;align-items:center;gap:12px;">
+        <h1 style="font-size:clamp(2.25rem,6vw,3rem);font-weight:900;letter-spacing:-.04em;color:#fff;margin:0;">
+          Vid<span class="gradient-text-orange">Xtra</span>
+        </h1>
+        <div style="background:#27272a;border:1px solid #3f3f46;border-radius:6px;padding:4px 10px;">
+          <span style="font-size:.8125rem;font-weight:700;color:#d4d4d8;">18+</span>
+        </div>
+      </div>
+
+      <!-- Icon -->
+      <div style="width:56px;height:56px;border-radius:50%;background:rgba(234,88,12,.12);border:1px solid rgba(234,88,12,.25);display:flex;align-items:center;justify-content:center;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="#ea580c"/>
+        </svg>
+      </div>
+
+      <!-- Headline -->
+      <div>
+        <h2 style="font-size:clamp(1.25rem,3.5vw,1.875rem);font-weight:700;color:#f4f4f5;margin:0 0 .75rem;line-height:1.25;">
+          You must be 18 years or older to enter
+        </h2>
+        <p style="color:#a1a1aa;max-width:480px;margin:0 auto;line-height:1.65;font-size:.9375rem;">
+          This website contains adult material. By entering, you confirm that you are of legal age in your jurisdiction to view sexually explicit content and that accessing such material does not violate any local laws.
+        </p>
+      </div>
+
+      <!-- CTAs -->
+      <div style="display:flex;gap:12px;width:100%;max-width:420px;flex-wrap:wrap;">
+        <button class="enter-btn" onclick="enterSite()">✓ &nbsp;I am 18 or older — Enter</button>
+        <button class="exit-btn" onclick="window.location.href='https://www.google.com'">I am under 18 — Exit</button>
+      </div>
+
+      <!-- Checkbox -->
+      <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(9,9,11,.5);border:1px solid rgba(63,63,70,.5);border-radius:8px;padding:1rem;width:100%;max-width:420px;text-align:left;">
+        <input type="checkbox" id="remember" />
+        <div>
+          <label for="remember" style="font-size:.875rem;font-weight:500;color:#e4e4e7;cursor:pointer;display:block;margin-bottom:4px;">Remember my age</label>
+          <p style="font-size:.75rem;color:#71717a;margin:0;line-height:1.5;">Uses a cookie to save your preference for 30 days. Do not check on a shared device.</p>
+        </div>
+      </div>
+
+      <!-- Legal -->
+      <div style="background:rgba(9,9,11,.8);border:1px solid rgba(63,63,70,.8);border-radius:8px;padding:1.25rem;width:100%;text-align:left;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#d4d4d8;">Legal Compliance</span>
+        </div>
+        <p style="font-size:.6875rem;color:#71717a;line-height:1.65;margin:0 0 8px;">
+          All models appearing on this website were 18 years or older at the time of production. This site operates in strict compliance with 18 U.S.C. § 2257 Record-Keeping Requirements Compliance Statement.
+        </p>
+        <p style="font-size:.6875rem;color:#71717a;line-height:1.65;margin:0;">
+          By accessing this site, you agree to our Terms of Service and acknowledge our Privacy Policy. This platform complies with GDPR &amp; LSSI (Spain) and prohibits illegal material.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="background:rgba(9,9,11,.8);border-top:1px solid #27272a;padding:1.25rem 2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;">
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;">
+        <a href="#" class="footer-link">Terms of Service</a>
+        <a href="#" class="footer-link">Privacy Policy</a>
+        <a href="#" class="footer-link">DMCA</a>
+        <a href="#" class="footer-link">2257 Statement</a>
+        <a href="#" class="footer-link">Cookie Policy</a>
+      </div>
+      <button style="display:flex;align-items:center;gap:6px;background:none;border:none;color:#71717a;font-size:.75rem;cursor:pointer;" onmouseenter="this.style.color='#d4d4d8'" onmouseleave="this.style.color='#71717a'">
+        🌐 Not your country? <span style="text-decoration:underline;">Change region</span>
+      </button>
+    </div>
+  </div>
+</div><!-- /age gate -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     PAGE 2 — HOMEPAGE
+════════════════════════════════════════════════════════════ -->
+<div id="page-home" class="page">
+
+  <!-- NAV -->
+  <nav style="position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(9,9,11,.85);backdrop-filter:blur(20px);">
+    <div style="max-width:1600px;margin:0 auto;padding:0 1.5rem;height:64px;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+      <div style="display:flex;align-items:center;gap:1.5rem;">
+        <a href="#" style="display:flex;align-items:center;gap:8px;" onclick="return false;">
+          <div style="background:linear-gradient(135deg,#dc2626,#ea580c);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(220,38,38,.25);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+          </div>
+          <span style="font-size:1.25rem;font-weight:900;letter-spacing:-.03em;color:#fff;">Vid<span class="gradient-text">Xtra</span></span>
+        </a>
+        <div style="display:none;" id="nav-tabs-home" class="lg:flex" style="display:flex;align-items:center;gap:4px;">
+          <button class="nav-tab active">Home</button>
+          <button class="nav-tab">Trending</button>
+          <button class="nav-tab">New</button>
+          <button class="nav-tab">Categories</button>
+          <button class="nav-tab" style="color:#f97316;">
+            <span class="live-dot" style="width:6px;height:6px;border-radius:50%;background:#f97316;display:inline-block;margin-right:4px;vertical-align:middle;"></span>Live
+          </button>
+        </div>
+      </div>
+      <div style="flex:1;max-width:480px;padding:0 1rem;position:relative;">
+        <svg style="position:absolute;left:1.75rem;top:50%;transform:translateY(-50%);color:#71717a;pointer-events:none;" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search videos, creators, categories…" style="width:100%;background:rgba(39,39,42,.5);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:9999px;padding:.5rem 1rem .5rem 2.25rem;font-size:.875rem;outline:none;" onfocus="this.style.borderColor='rgba(239,68,68,.5)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" />
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;">
+        <button style="background:none;border:none;color:#a1a1aa;cursor:pointer;padding:6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+        <button style="background:none;border:none;color:#a1a1aa;cursor:pointer;padding:.375rem .75rem;font-size:.875rem;color:#d4d4d8;">Log In</button>
+        <button style="background:linear-gradient(90deg,#dc2626,#ea580c);border:none;color:#fff;font-size:.875rem;font-weight:600;cursor:pointer;padding:.5rem 1.25rem;border-radius:9999px;box-shadow:0 4px 16px rgba(220,38,38,.25);">Sign Up</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section style="position:relative;height:60vh;min-height:400px;max-height:580px;overflow:hidden;display:flex;align-items:flex-end;">
+    <div style="position:absolute;inset:0;">
+      <div class="hero-bg" style="width:100%;height:100%;opacity:.4;mix-blend-mode:luminosity;"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,#09090b,rgba(9,9,11,.6),transparent);"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to right,#09090b,rgba(9,9,11,.8),transparent);"></div>
+    </div>
+    <div style="position:relative;z-index:1;max-width:1600px;margin:0 auto;width:100%;padding:0 1.5rem 3rem;display:flex;flex-direction:column;gap:1rem;">
+      <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;padding:4px 12px;border-radius:9999px;font-size:.75rem;font-weight:600;width:fit-content;">
+        🔥 #1 Trending This Week
+      </span>
+      <h1 style="font-size:clamp(1.8rem,5vw,3.5rem);font-weight:900;color:#fff;line-height:1.1;letter-spacing:-.03em;margin:0;max-width:680px;">
+        The Velvet Room:<br/><span class="gradient-text">Exclusive Premiere</span>
+      </h1>
+      <p style="color:#a1a1aa;font-size:1.1rem;max-width:560px;font-weight:300;margin:.25rem 0 .75rem;">
+        A cinematic masterpiece featuring the top creators of the year in stunning 4K HDR.
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:center;">
+        <button onclick="goToPlayer()" style="background:#fff;color:#000;border:none;border-radius:9999px;padding:.875rem 2rem;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 0 40px rgba(255,255,255,.25);transition:transform .15s;" onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform='scale(1)'">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="black"><polygon points="5,3 19,12 5,21"/></svg> Watch Now
+        </button>
+        <button style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:9999px;padding:.875rem 2rem;font-size:1rem;font-weight:500;cursor:pointer;backdrop-filter:blur(8px);">
+          + Add to List
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORY BAR -->
+  <div style="border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);position:sticky;top:64px;z-index:40;background:rgba(9,9,11,.5);backdrop-filter:blur(12px);">
+    <div class="scroll-row" style="max-width:1600px;margin:0 auto;padding:.875rem 1.5rem;">
+      <button class="cat-btn">🔥 Trending</button>
+      <button class="cat-btn">✨ New Releases</button>
+      <button class="cat-btn">👁 Most Viewed</button>
+      <button class="cat-btn">⭐ Top Rated</button>
+      <button class="cat-btn" style="color:#f87171;border-color:rgba(239,68,68,.3);">
+        <span class="live-dot" style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;"></span>Live
+      </button>
+      <button class="cat-btn">🎥 Amateur</button>
+      <button class="cat-btn">👑 Professional</button>
+      <button class="cat-btn">🤖 AI Content</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main style="max-width:1600px;margin:0 auto;padding:2rem 1.5rem;display:flex;flex-direction:column;gap:3rem;">
+
+    <!-- TRENDING ROW -->
+    <section>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+        <h2 style="font-size:1.375rem;font-weight:700;color:#fff;margin:0;display:flex;align-items:center;gap:8px;">🔥 Trending Now</h2>
+        <button style="background:none;border:none;color:#a1a1aa;cursor:pointer;font-size:.875rem;" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='#a1a1aa'">See All →</button>
+      </div>
+      <div class="scroll-row" id="trending-row"></div>
+    </section>
+
+    <!-- CREATORS -->
+    <section style="background:linear-gradient(90deg,rgba(39,39,42,.5),rgba(9,9,11,1));border:1px solid rgba(255,255,255,.05);border-radius:1rem;padding:2rem;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;right:0;padding:2rem;opacity:.06;pointer-events:none;font-size:12rem;line-height:1;">👑</div>
+      <h2 style="font-size:1.375rem;font-weight:700;color:#fff;margin:0 0 1.75rem;display:flex;align-items:center;gap:8px;">👑 Featured Creators</h2>
+      <div id="creators-row" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:1.25rem;"></div>
+    </section>
+
+    <!-- VIDEO GRID -->
+    <section>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid rgba(255,255,255,.08);">
+        <h2 style="font-size:1.375rem;font-weight:700;color:#fff;margin:0;">Recommended For You</h2>
+        <button style="display:flex;align-items:center;gap:6px;background:none;border:1px solid rgba(255,255,255,.1);color:#a1a1aa;cursor:pointer;padding:6px 14px;border-radius:6px;font-size:.875rem;">
+          ☰ Filter
+        </button>
+      </div>
+      <div id="video-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem 1rem;"></div>
+      <div style="margin-top:2.5rem;display:flex;justify-content:center;">
+        <button style="background:rgba(39,39,42,.5);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;padding:.875rem 2.5rem;border-radius:9999px;font-size:1rem;font-weight:600;" onmouseenter="this.style.background='rgba(63,63,70,.8)'" onmouseleave="this.style.background='rgba(39,39,42,.5)'">
+          Load More Videos
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid rgba(255,255,255,.1);background:#09090b;padding:3.5rem 1.5rem 2rem;">
+    <div style="max-width:1600px;margin:0 auto;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2rem;margin-bottom:2.5rem;">
+        <div style="grid-column:span 2;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;">
+            <div style="background:linear-gradient(135deg,#dc2626,#ea580c);width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+            </div>
+            <span style="font-size:1.25rem;font-weight:900;color:#fff;letter-spacing:-.03em;">Vid<span class="gradient-text">Xtra</span></span>
+          </div>
+          <p style="color:#71717a;font-size:.875rem;max-width:280px;line-height:1.6;margin:0 0 1rem;">The premium destination for high-quality adult entertainment.</p>
+          <div style="display:flex;align-items:center;gap:6px;color:#22c55e;font-size:.875rem;font-weight:500;">🔒 100% Secure &amp; Private</div>
+        </div>
+        <div>
+          <h4 style="color:#fff;font-weight:700;margin:0 0 1rem;">Discover</h4>
+          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+            <li><a href="#" class="footer-link">Trending Now</a></li>
+            <li><a href="#" class="footer-link">New Releases</a></li>
+            <li><a href="#" class="footer-link">Top Rated</a></li>
+            <li><a href="#" class="footer-link">Categories</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="color:#fff;font-weight:700;margin:0 0 1rem;">Support</h4>
+          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+            <li><a href="#" class="footer-link">Help Center</a></li>
+            <li><a href="#" class="footer-link">Trust &amp; Safety</a></li>
+            <li><a href="#" class="footer-link">Content Removal</a></li>
+            <li><a href="#" class="footer-link">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.08);gap:1rem;">
+        <div style="display:flex;flex-wrap:wrap;gap:1.25rem;">
+          <span style="color:#52525b;font-size:.75rem;">&copy; 2026 VidXtra. All rights reserved.</span>
+          <a href="#" class="footer-link">Terms of Service</a>
+          <a href="#" class="footer-link">Privacy Policy</a>
+          <a href="#" class="footer-link">Cookie Policy</a>
+          <a href="#" class="footer-link">DMCA</a>
+          <a href="#" class="footer-link">2257 Record-Keeping</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.1);border-radius:9999px;padding:5px 14px;font-size:.75rem;font-weight:700;color:#71717a;">
+          <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;"></span>18+ ONLY
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /home -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     PAGE 3 — VIDEO PLAYER
+════════════════════════════════════════════════════════════ -->
+<div id="page-player" class="page">
+
+  <!-- NAV -->
+  <header style="position:sticky;top:0;z-index:50;display:flex;height:64px;align-items:center;justify-content:space-between;border-bottom:1px solid #27272a;background:rgba(21,21,24,.95);padding:0 1.5rem;backdrop-filter:blur(10px);">
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <button onclick="goToHome()" style="background:none;border:none;color:#71717a;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:.875rem;" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='#71717a'">
+        ← Back
+      </button>
+      <div style="display:flex;align-items:center;justify-content:center;background:#e11d48;border-radius:6px;padding:4px 10px;font-size:.875rem;font-weight:900;letter-spacing:-.05em;color:#fff;">VidXtra</div>
+    </div>
+    <div style="flex:1;max-width:520px;padding:0 2rem;position:relative;">
+      <svg style="position:absolute;left:2.75rem;top:50%;transform:translateY(-50%);pointer-events:none;" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search videos, actors, categories…" style="width:100%;height:40px;background:#18181b;border:1px solid #3f3f46;border-radius:9999px;padding:0 1rem 0 2.25rem;color:#f4f4f5;font-size:.875rem;outline:none;" />
+    </div>
+    <div style="width:32px;height:32px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#a1a1aa;cursor:pointer;border:2px solid transparent;" onmouseenter="this.style.borderColor='#e11d48'" onmouseleave="this.style.borderColor='transparent'">U</div>
+  </header>
+
+  <main style="max-width:1800px;margin:0 auto;display:flex;gap:1.5rem;padding:1.5rem;flex-wrap:wrap;">
+
+    <!-- LEFT -->
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1rem;">
+
+      <!-- PLAYER -->
+      <div id="player-wrap" style="position:relative;aspect-ratio:16/9;width:100%;border-radius:12px;overflow:hidden;background:#09090b;box-shadow:0 25px 50px rgba(0,0,0,.6);cursor:pointer;" onclick="togglePlay()">
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,#18181b,#1a1525,#18181b);">
+          <div style="width:100%;height:100%;background:radial-gradient(ellipse at center,rgba(225,29,72,.15),transparent 70%);"></div>
+        </div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25);">
+          <button id="big-play-btn" onclick="togglePlay(event)" style="width:80px;height:80px;border-radius:50%;background:rgba(225,29,72,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(225,29,72,.4);transition:transform .15s,background .15s;" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform='scale(1)'">
+            <svg id="big-play-icon" width="36" height="36" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+          </button>
+        </div>
+        <!-- Save btn -->
+        <div class="player-ctrl" style="position:absolute;right:1rem;top:1rem;">
+          <button style="display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:.75rem;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;">
+            🔖 Save
+          </button>
+        </div>
+        <!-- Controls -->
+        <div class="player-ctrl" style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.9),rgba(0,0,0,.6),transparent);padding:1.25rem 1rem 1rem;" onclick="event.stopPropagation()">
+          <div class="progress-track" style="margin-bottom:1rem;">
+            <div class="progress-buffered"></div>
+            <div class="progress-played"><div class="progress-thumb"></div></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;color:#f4f4f5;">
+            <div style="display:flex;align-items:center;gap:1rem;">
+              <button id="ctrl-play-btn" onclick="togglePlay(event)" style="background:none;border:none;color:#fff;cursor:pointer;">
+                <svg id="ctrl-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+              </button>
+              <button style="background:none;border:none;color:#fff;cursor:pointer;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+              </button>
+              <span style="font-size:.75rem;font-weight:500;letter-spacing:.05em;">12:34 <span style="color:#71717a;">/</span> 45:20</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:1rem;">
+              <button style="display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:4px;cursor:pointer;">
+                ⬇ DL
+              </button>
+              <button style="background:none;border:none;color:#e11d48;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;">720p</button>
+              <button style="background:none;border:none;color:#fff;cursor:pointer;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- META -->
+      <div style="display:flex;flex-direction:column;gap:1rem;padding:.5rem 0;">
+        <div>
+          <h1 style="font-size:1.375rem;font-weight:700;color:#f4f4f5;margin:0 0 .75rem;">Professional Studio — 4K Remastered Edition</h1>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;">
+            <div style="display:flex;align-items:center;gap:12px;font-size:.875rem;color:#71717a;">
+              <span style="font-weight:600;color:#e4e4e7;">4.2M views</span>
+              <span>·</span><span>98% Likes</span><span>·</span><span>2 days ago</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;background:rgba(39,39,42,.8);border-radius:9999px;padding:4px;backdrop-filter:blur(4px);">
+                <button style="display:flex;align-items:center;gap:8px;background:none;border:none;color:#d4d4d8;font-size:.875rem;cursor:pointer;padding:6px 14px;border-radius:9999px;" onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='none'">👍 412K</button>
+                <div style="width:1px;height:16px;background:#52525b;"></div>
+                <button style="background:none;border:none;color:#a1a1aa;cursor:pointer;padding:6px 12px;border-radius:9999px;" onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='none'">👎</button>
+              </div>
+              <button style="display:flex;align-items:center;gap:8px;background:rgba(39,39,42,.8);border:none;color:#d4d4d8;font-size:.875rem;cursor:pointer;padding:8px 16px;border-radius:9999px;" onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='rgba(39,39,42,.8)'">↑ Share</button>
+              <button style="display:flex;align-items:center;gap:8px;background:rgba(39,39,42,.8);border:none;color:#d4d4d8;font-size:.875rem;cursor:pointer;padding:8px 16px;border-radius:9999px;" onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='rgba(39,39,42,.8)'">🔖 Save</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span class="tag-badge">HD</span><span class="tag-badge">Professional</span>
+          <span class="tag-badge">Exclusive</span><span class="tag-badge">Remastered</span>
+          <span class="tag-badge">Studio</span><span class="tag-badge">Premium</span>
+        </div>
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);" />
+
+        <!-- Creator -->
+        <div style="background:rgba(39,39,42,.5);border-radius:12px;padding:1rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <div style="display:flex;gap:1rem;align-items:center;">
+              <div style="width:48px;height:48px;border-radius:50%;background:#27272a;border:1px solid #3f3f46;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#a1a1aa;flex-shrink:0;">VS</div>
+              <div>
+                <div style="font-weight:700;color:#f4f4f5;display:flex;align-items:center;gap:6px;">Vivid Studios ✓</div>
+                <p style="font-size:.75rem;color:#71717a;margin:2px 0 0;">1.2M followers</p>
+              </div>
+            </div>
+            <button style="background:#e11d48;border:none;color:#fff;font-weight:700;font-size:.875rem;cursor:pointer;padding:8px 20px;border-radius:9999px;" onmouseenter="this.style.background='#be123c'" onmouseleave="this.style.background='#e11d48'">Follow</button>
+          </div>
+          <div id="desc-text" style="font-size:.875rem;color:#d4d4d8;line-height:1.6;overflow:hidden;max-height:3rem;transition:max-height .3s;">
+            Experience the highest quality production in stunning 4K resolution. This remastered edition brings crystal clear details and perfect lighting to your screen.<br/><br/>
+            Starring: Alexa, Jordan · Director: M. Vance · Studio: Vivid Entertainment<br/><br/>
+            Don't forget to like and subscribe for weekly exclusive content!
+          </div>
+          <button id="desc-toggle" onclick="toggleDesc()" style="font-size:.75rem;font-weight:600;color:#71717a;background:none;border:none;cursor:pointer;margin-top:6px;padding:0;" onmouseenter="this.style.color='#f4f4f5'" onmouseleave="this.style.color='#71717a'">Show more</button>
+        </div>
+
+        <!-- Comments -->
+        <div style="margin-top:1.5rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+            <h3 style="font-size:1.1rem;font-weight:700;color:#f4f4f5;margin:0;">💬 1,492 Comments</h3>
+            <button style="background:none;border:none;color:#a1a1aa;font-size:.875rem;cursor:pointer;">Sort by: Top ▾</button>
+          </div>
+          <div style="display:flex;gap:1rem;margin-bottom:2rem;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;color:#a1a1aa;font-size:.75rem;flex-shrink:0;">U</div>
+            <div style="flex:1;">
+              <input type="text" placeholder="Add a comment…" style="width:100%;background:transparent;border:none;border-bottom:1px solid #3f3f46;color:#f4f4f5;font-size:.875rem;padding:8px 0;outline:none;" onfocus="this.style.borderColor='#71717a'" onblur="this.style.borderColor='#3f3f46'" />
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1.5rem;">
+            <div style="display:flex;gap:1rem;">
+              <div style="width:40px;height:40px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;color:#a1a1aa;font-size:.875rem;font-weight:700;flex-shrink:0;">N</div>
+              <div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:.875rem;font-weight:600;color:#e4e4e7;">@nightowl88</span><span style="font-size:.75rem;color:#71717a;">1 day ago</span></div>
+              <p style="margin:6px 0 8px;font-size:.875rem;color:#d4d4d8;">The lighting in this scene is absolutely incredible. Props to the cinematography team.</p>
+              <div style="display:flex;gap:1rem;"><button class="comment-btn">👍 4.2K</button><button class="comment-btn">👎</button><button class="comment-btn" style="font-weight:600;">Reply</button></div></div>
+            </div>
+            <div style="display:flex;gap:1rem;">
+              <div style="width:40px;height:40px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;color:#a1a1aa;font-size:.875rem;font-weight:700;flex-shrink:0;">C</div>
+              <div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:.875rem;font-weight:600;color:#e4e4e7;">@cinema_fanatic</span><span style="font-size:.75rem;color:#71717a;">2 days ago</span></div>
+              <p style="margin:6px 0 8px;font-size:.875rem;color:#d4d4d8;">Finally they remastered this classic! The 4K difference is night and day.</p>
+              <div style="display:flex;gap:1rem;"><button class="comment-btn">👍 1.8K</button><button class="comment-btn">👎</button><button class="comment-btn" style="font-weight:600;">Reply</button></div></div>
+            </div>
+            <div style="display:flex;gap:1rem;">
+              <div style="width:40px;height:40px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;color:#a1a1aa;font-size:.875rem;font-weight:700;flex-shrink:0;">V</div>
+              <div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:.875rem;font-weight:600;color:#e4e4e7;">@viewer_x</span><span style="font-size:.75rem;color:#71717a;">5 hours ago</span></div>
+              <p style="margin:6px 0 8px;font-size:.875rem;color:#d4d4d8;">Audio mix seems a bit low on the dialogue, but overall a masterpiece.</p>
+              <div style="display:flex;gap:1rem;"><button class="comment-btn">👍 342</button><button class="comment-btn">👎</button><button class="comment-btn" style="font-weight:600;">Reply</button></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /left -->
+
+    <!-- SIDEBAR -->
+    <div style="width:100%;max-width:380px;flex-shrink:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <h3 style="font-size:1.1rem;font-weight:700;color:#f4f4f5;margin:0;">Related Videos</h3>
+        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#71717a;border:1px solid #27272a;padding:3px 10px;border-radius:4px;">Auto-play ON</span>
+      </div>
+      <div id="related-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+  </main>
+
+</div><!-- /player -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════ -->
+<script>
+/* ───────────────────────────────────────
+   DATA
+─────────────────────────────────────── */
+const CINEMAS = ['dark-cinema-1','dark-cinema-2','dark-cinema-3','dark-cinema-4','dark-cinema-5'];
+const AV_COLORS = ['#3f3f46','#27272a','#18181b','#1c1917','#1e1b4b'];
+
+const TRENDING_DATA = [
+  { title:"Midnight Desires: The CEO's Secret", views:"3.2M", duration:"45:12", quality:"4K", creator:"LuxeStudios" },
+  { title:"Late Night Confessions Part 3", views:"2.1M", duration:"32:05", quality:"HD", creator:"AmateurNights" },
+  { title:"The Poolboy's Revenge: A Summer Fling", views:"1.8M", duration:"55:30", quality:"4K", creator:"SunnyDays" },
+  { title:"Neon Dreams & Velvet Ropes", views:"4.5M", duration:"1:12:00", quality:"4K", creator:"VIPExclusive" },
+  { title:"College Roommates: Final Exams", views:"5.6M", duration:"28:45", quality:"HD", creator:"CampusCrush" },
+  { title:"Behind Closed Doors: The Interview", views:"1.2M", duration:"41:20", quality:"4K", creator:"CorporateTales" },
+];
+
+const GRID_DATA = [
+  { title:"Yoga Instructor's Private Lesson", views:"890K", duration:"34:15", quality:"4K", creator:"ZenMotion", days:1 },
+  { title:"The Wedding Crasher's Reward", views:"1.1M", duration:"48:50", quality:"HD", creator:"EventfulNights", days:2 },
+  { title:"Massage Therapy Gone Wild", views:"3.4M", duration:"25:30", quality:"4K", creator:"RelaxPlus", days:2 },
+  { title:"Neighbor's Secret Window", views:"6.7M", duration:"52:10", quality:"HD", creator:"SuburbanSecrets", days:3 },
+  { title:"Maid to Order: Premium Service", views:"2.3M", duration:"39:45", quality:"4K", creator:"LuxeStudios", days:3 },
+  { title:"The Photographer's Muse", views:"945K", duration:"44:20", quality:"4K", creator:"ArtisticVisions", days:4 },
+  { title:"Midnight Swim in Cabo", views:"1.5M", duration:"31:10", quality:"HD", creator:"TravelDiaries", days:5 },
+  { title:"Detention: The Teacher's Pet", views:"4.8M", duration:"58:05", quality:"4K", creator:"CampusCrush", days:5 },
+  { title:"Billionaire's Yacht Party Exclusives", views:"5.1M", duration:"1:25:00", quality:"4K", creator:"VIPExclusive", days:6 },
+  { title:"Gym Crush: After Hours Session", views:"2.9M", duration:"29:30", quality:"HD", creator:"FitFanatics", days:6 },
+  { title:"The Mechanic's Tune-Up", views:"1.4M", duration:"42:15", quality:"4K", creator:"GreaseMonkeys", days:7 },
+  { title:"First Date Confessions", views:"820K", duration:"22:40", quality:"HD", creator:"AmateurNights", days:7 },
+];
+
+const CREATORS_DATA = [
+  { name:"Lexi Belle", followers:"4.2M", verified:true, initials:"LB" },
+  { name:"Marcus Stone", followers:"1.8M", verified:true, initials:"MS" },
+  { name:"LuxeStudios", followers:"8.5M", verified:true, initials:"LS" },
+  { name:"Bella Rose", followers:"3.1M", verified:false, initials:"BR" },
+  { name:"Johnny S.", followers:"5.4M", verified:true, initials:"JS" },
+  { name:"AmateurNights", followers:"920K", verified:false, initials:"AN" },
+  { name:"VIPExclusive", followers:"2.7M", verified:true, initials:"VE" },
+];
+
+const RELATED_DATA = [
+  { title:"Behind The Scenes: Studio Sessions", views:"890K", time:"18:45", creator:"Vivid Studios" },
+  { title:"Exclusive Interview Collection", views:"1.2M", time:"24:20", creator:"Premium Network" },
+  { title:"Director's Cut - Extended Version", views:"3.4M", time:"55:10", creator:"Vivid Studios" },
+  { title:"Cinematic Showcase 2024", views:"500K", time:"12:05", creator:"Indie Arts" },
+  { title:"Remastered Classics Compilation", views:"2.1M", time:"42:00", creator:"Archive HQ" },
+  { title:"The Making Of A Masterpiece", views:"750K", time:"28:15", creator:"Vivid Studios" },
+  { title:"Studio Tour & Setup Guide", views:"420K", time:"15:30", creator:"Tech Gear" },
+  { title:"Premium Selects Vol 4", views:"1.8M", time:"35:45", creator:"Premium Network" },
+];
+
+/* ───────────────────────────────────────
+   NAVIGATION
+─────────────────────────────────────── */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById(id);
+  page.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function enterSite() {
+  const rem = document.getElementById('remember').checked;
+  if (rem) {
+    const exp = new Date(); exp.setDate(exp.getDate()+30);
+    document.cookie = `agv=1;expires=${exp.toUTCString()};path=/;SameSite=Lax`;
+  } else {
+    sessionStorage.setItem('agv','1');
+  }
+  showPage('page-home');
+  buildHome();
+}
+
+function goToHome() { showPage('page-home'); }
+function goToPlayer() { showPage('page-player'); buildPlayer(); }
+
+/* ───────────────────────────────────────
+   BUILD HOME
+─────────────────────────────────────── */
+let homeBuilt = false;
+function buildHome() {
+  if (homeBuilt) return; homeBuilt = true;
+
+  /* Trending row */
+  const tr = document.getElementById('trending-row');
+  TRENDING_DATA.forEach((v,i) => { tr.innerHTML += videoCard(v,i,'300px'); });
+
+  /* Creators */
+  const cr = document.getElementById('creators-row');
+  CREATORS_DATA.forEach((c,i) => {
+    cr.innerHTML += `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;text-align:center;">
+      <div style="position:relative;">
+        <div style="width:72px;height:72px;border-radius:50%;background:${AV_COLORS[i%5]};border:2px solid #3f3f46;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:#a1a1aa;transition:box-shadow .2s;" onmouseenter="this.style.boxShadow='0 0 16px rgba(239,68,68,.6)'" onmouseleave="this.style.boxShadow='none'">${c.initials}</div>
+        ${c.verified?`<div style="position:absolute;bottom:0;right:0;background:#3b82f6;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border:2px solid #09090b;font-size:10px;color:#fff;">✓</div>`:''}
+      </div>
+      <div>
+        <div style="font-size:.8125rem;font-weight:600;color:#e4e4e7;">${c.name}</div>
+        <div style="font-size:.75rem;color:#71717a;">${c.followers} followers</div>
+      </div>
+    </div>`;
+  });
+
+  /* Grid */
+  const gr = document.getElementById('video-grid');
+  GRID_DATA.forEach((v,i) => { gr.innerHTML += videoCard(v,i,'100%', true); });
+}
+
+function videoCard(v, i, w, clickable=false) {
+  const c = CINEMAS[i%5];
+  const qBadge = v.quality==='4K'
+    ? `<span style="position:absolute;top:8px;left:8px;background:rgba(220,38,38,.9);color:#fff;font-size:10px;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:4px;">PREMIUM</span>`
+    : `<span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.1);">HD</span>`;
+  const clickAttr = clickable ? `onclick="goToPlayer()"` : `onclick="goToPlayer()"`;
+  return `
+  <div class="vcard card-hover-fx" style="width:${w};flex-shrink:0;cursor:pointer;" ${clickAttr}>
+    <div class="${c}" style="position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.05);">
+      ${qBadge}
+      <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.8);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.1);">⏱ ${v.duration}</div>
+      <div class="play-btn-overlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+        <div style="width:52px;height:52px;background:rgba(220,38,38,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(220,38,38,.5);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;padding:.5rem 4px 0;">
+      <div style="width:34px;height:34px;border-radius:50%;background:${AV_COLORS[i%5]};border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#a1a1aa;flex-shrink:0;">${v.creator.substring(0,2).toUpperCase()}</div>
+      <div>
+        <div class="vcard-title line-clamp-2" style="color:#fff;font-weight:500;font-size:.875rem;line-height:1.3;transition:color .15s;">${v.title}</div>
+        <div style="color:#a1a1aa;font-size:.75rem;margin-top:4px;">${v.creator}</div>
+        <div style="color:#71717a;font-size:.75rem;margin-top:2px;">${v.views} views · ${v.days?v.days+' day'+(v.days>1?'s':'')+' ago':'Just now'}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ───────────────────────────────────────
+   BUILD PLAYER
+─────────────────────────────────────── */
+let playerBuilt = false;
+function buildPlayer() {
+  if (playerBuilt) return; playerBuilt = true;
+  const rl = document.getElementById('related-list');
+  RELATED_DATA.forEach((v,i) => {
+    rl.innerHTML += `
+    <div class="related-card">
+      <div class="${CINEMAS[i%5]}" style="position:relative;width:140px;height:84px;border-radius:8px;overflow:hidden;flex-shrink:0;">
+        <div style="position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,.8);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;">${v.time}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;padding:2px 0;">
+        <h4 class="rel-title line-clamp-2" style="font-size:.875rem;font-weight:600;line-height:1.3;color:#f4f4f5;transition:color .15s;margin:0 0 6px;">${v.title}</h4>
+        <p style="font-size:.75rem;color:#a1a1aa;margin:0;">${v.creator}</p>
+        <p style="font-size:.75rem;color:#71717a;margin:2px 0 0;">${v.views} views · 1 week ago</p>
+      </div>
+    </div>`;
+  });
+}
+
+/* ───────────────────────────────────────
+   PLAYER CONTROLS
+─────────────────────────────────────── */
+let playing = false;
+function togglePlay(e) {
+  if (e) e.stopPropagation();
+  playing = !playing;
+  const svg = playing
+    ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+    : '<polygon points="5,3 19,12 5,21"/>';
+  document.getElementById('big-play-icon').innerHTML = svg;
+  document.getElementById('ctrl-play-icon').innerHTML = svg;
+}
+
+let descOpen = false;
+function toggleDesc() {
+  descOpen = !descOpen;
+  document.getElementById('desc-text').style.maxHeight = descOpen ? '500px' : '3rem';
+  document.getElementById('desc-toggle').textContent = descOpen ? 'Show less' : 'Show more';
+}
+
+/* ───────────────────────────────────────
+   INIT
+─────────────────────────────────────── */
+// Auto-skip age gate if already verified
+if (document.cookie.includes('agv=1') || sessionStorage.getItem('agv')==='1') {
+  showPage('page-home');
+  buildHome();
+}
+
+// Tab switching (visual only)
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', function() {
+    this.closest('div').querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
