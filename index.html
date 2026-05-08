@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StreamForge — Arquitectura de Plataforma</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #ff4d6d;
+    --accent2: #7c3aed;
+    --accent3: #06b6d4;
+    --gold: #f59e0b;
+    --green: #10b981;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --mono: 'DM Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --serif: 'Instrument Serif', serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 2px; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 60px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 70% 40%, rgba(124,58,237,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 20% 80%, rgba(255,77,109,0.1) 0%, transparent 50%),
+      radial-gradient(ellipse 40% 40% at 80% 90%, rgba(6,182,212,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.4);
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #a78bfa;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    width: fit-content;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #a78bfa;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero h1 {
+    font-size: clamp(48px, 8vw, 110px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .hero h1 .line1 { color: var(--text); }
+  .hero h1 .line2 {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--accent);
+    font-style: italic;
+    font-family: var(--serif);
+  }
+  .hero h1 .line3 {
+    background: linear-gradient(135deg, var(--accent2), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-desc {
+    max-width: 520px;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item { }
+  .meta-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+  .meta-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .meta-value span { color: var(--accent); }
+
+  .grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(42,42,58,0.3) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(42,42,58,0.3) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse at center, transparent 30%, black 100%);
+  }
+
+  /* NAV */
+  .toc {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 60px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+  }
+
+  .toc-logo {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    padding: 16px 24px 16px 0;
+    margin-right: 24px;
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 18px 14px;
+    white-space: nowrap;
+    transition: color 0.2s;
+    border-bottom: 2px solid transparent;
+  }
+
+  .toc a:hover { color: var(--text); border-bottom-color: var(--accent2); }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 60px;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 100px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    margin-bottom: 48px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  .section-title {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .section-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--muted);
+    font-size: 16px;
+    margin-top: -36px;
+    margin-bottom: 40px;
+    padding-left: 2px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--accent2); }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-title .icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* GRID LAYOUTS */
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #090910;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+
+  .code-header {
+    background: var(--surface2);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .code-dots .r { background: #ff5f57; }
+  .code-dots .y { background: #febc2e; }
+  .code-dots .g { background: #28c840; }
+
+  pre {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    padding: 20px;
+    overflow-x: auto;
+    color: #c8c8e8;
+  }
+
+  .kw { color: #c084fc; }
+  .str { color: #6ee7b7; }
+  .cm { color: #4b5563; font-style: italic; }
+  .fn { color: #67e8f9; }
+  .num { color: #fb923c; }
+  .key { color: #a78bfa; }
+  .op { color: #94a3b8; }
+
+  /* TAGS */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+
+  .tag-purple { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+  .tag-red { background: rgba(255,77,109,0.15); color: #ff8fa3; border: 1px solid rgba(255,77,109,0.3); }
+  .tag-cyan { background: rgba(6,182,212,0.15); color: #67e8f9; border: 1px solid rgba(6,182,212,0.3); }
+  .tag-gold { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+  .tag-green { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+  .tag-gray { background: rgba(107,107,128,0.15); color: #9ca3af; border: 1px solid rgba(107,107,128,0.3); }
+
+  /* LIST */
+  .check-list { list-style: none; }
+  .check-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .check-list li:last-child { border-bottom: none; }
+  .check-list li::before {
+    content: '✓';
+    color: var(--green);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ENDPOINT */
+  .endpoint {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin: 8px 0;
+  }
+
+  .method {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    min-width: 52px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .GET { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+  .POST { background: rgba(6,182,212,0.2); color: #67e8f9; }
+  .PUT { background: rgba(245,158,11,0.2); color: #fcd34d; }
+  .DELETE { background: rgba(255,77,109,0.2); color: #ff8fa3; }
+  .PATCH { background: rgba(124,58,237,0.2); color: #a78bfa; }
+
+  .ep-path {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .ep-desc {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* FOLDER TREE */
+  .tree {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 2;
+    color: #c8c8e8;
+  }
+  .tree .dir { color: #a78bfa; }
+  .tree .file { color: #6ee7b7; }
+  .tree .comment { color: #4b5563; }
+
+  /* FLOW */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding: 20px 0;
+  }
+
+  .flow-step {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 140px;
+  }
+
+  .flow-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    width: 100%;
+    position: relative;
+  }
+
+  .flow-box.accent { border-color: var(--accent2); background: rgba(124,58,237,0.1); color: #a78bfa; }
+  .flow-box.red { border-color: var(--accent); background: rgba(255,77,109,0.1); color: #ff8fa3; }
+  .flow-box.cyan { border-color: var(--accent3); background: rgba(6,182,212,0.1); color: #67e8f9; }
+  .flow-box.gold { border-color: var(--gold); background: rgba(245,158,11,0.1); color: #fcd34d; }
+  .flow-box.green { border-color: var(--green); background: rgba(16,185,129,0.1); color: #6ee7b7; }
+
+  .flow-sub { font-size: 10px; color: var(--muted); margin-top: 6px; font-family: var(--mono); }
+
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    color: var(--border);
+    font-size: 20px;
+    padding-top: 0;
+    align-self: center;
+    flex-shrink: 0;
+  }
+
+  /* TABLE */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .data-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(42,42,58,0.4);
+    color: var(--muted);
+    vertical-align: top;
+  }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .data-table .col { color: var(--accent3); font-family: var(--mono); font-size: 12px; }
+  .data-table .type { color: var(--gold); font-family: var(--mono); font-size: 11px; }
+
+  /* ALERT */
+  .alert {
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 13px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .alert-warn { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: #fcd34d; }
+  .alert-info { background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.25); color: #67e8f9; }
+  .alert-danger { background: rgba(255,77,109,0.08); border: 1px solid rgba(255,77,109,0.25); color: #ff8fa3; }
+  .alert-success { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); color: #6ee7b7; }
+
+  /* DIVIDER */
+  hr.fancy {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 60px 0;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  footer .brand { font-size: 18px; font-weight: 800; color: var(--accent); }
+  footer .copy { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero, .container, .toc, footer { padding-left: 24px; padding-right: 24px; }
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .toc { gap: 0; }
+    .flow { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); align-self: flex-start; margin-left: 70px; }
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero > * { animation: fadeUp 0.7s ease forwards; opacity: 0; }
+  .hero > *:nth-child(1) { animation-delay: 0.1s; }
+  .hero > *:nth-child(2) { animation-delay: 0.25s; }
+  .hero > *:nth-child(3) { animation-delay: 0.4s; }
+  .hero > *:nth-child(4) { animation-delay: 0.55s; }
+  .hero > *:nth-child(5) { animation-delay: 0.7s; }
+
+  .tags-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .highlight-number {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text);
+  }
+  .highlight-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  @media(max-width:768px) { .two-col { grid-template-columns: 1fr; } }
+
+  .big-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .big-card-header {
+    background: var(--surface2);
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .big-card-body { padding: 28px; }
+
+  .stripe {
+    display: inline-block;
+    width: 3px;
+    height: 18px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .ep-group { margin-bottom: 28px; }
+  .ep-group-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="grid-bg"></div>
+  <div class="hero-badge">v1.0 — Arquitectura de Producción</div>
+  <h1>
+    <div class="line1">StreamForge</div>
+    <div class="line2">Platform</div>
+    <div class="line3">Architecture</div>
+  </h1>
+  <p class="hero-desc">
+    Plataforma UGC de vídeo full-stack, escalable y conforme con la normativa europea.
+    Diseñada para producción con soporte RGPD, HLS streaming, monetización y moderación avanzada.
+  </p>
+  <div class="hero-meta">
+    <div class="meta-item"><div class="meta-label">Módulos</div><div class="meta-value">12<span>+</span></div></div>
+    <div class="meta-item"><div class="meta-label">Endpoints API</div><div class="meta-value">80<span>+</span></div></div>
+    <div class="meta-item"><div class="meta-label">Tablas DB</div><div class="meta-value">24<span>+</span></div></div>
+    <div class="meta-item"><div class="meta-label">Cumplimiento</div><div class="meta-value">EU<span>/ES</span></div></div>
+  </div>
+</section>
+
+<!-- NAV -->
+<nav class="toc">
+  <div class="toc-logo">SF</div>
+  <a href="#stack">Stack</a>
+  <a href="#estructura">Estructura</a>
+  <a href="#base-datos">Base de Datos</a>
+  <a href="#api">API REST</a>
+  <a href="#auth">Auth</a>
+  <a href="#video">Vídeo</a>
+  <a href="#streaming">Streaming</a>
+  <a href="#legal">Legal</a>
+  <a href="#moderacion">Moderación</a>
+  <a href="#monetizacion">Monetización</a>
+  <a href="#seguridad">Seguridad</a>
+  <a href="#seo">SEO</a>
+  <a href="#frontend">Frontend</a>
+  <a href="#admin">Admin</a>
+</nav>
+
+<div class="container">
+
+<!-- =================== STACK =================== -->
+<section class="section" id="stack">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2 class="section-title">Stack Tecnológico</h2>
+  </div>
+  <p class="section-sub">Tecnologías seleccionadas para escalar de 0 a millones de usuarios</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="icon" style="background:rgba(0,0,0,0.4);">⚛</span>Frontend</div>
+      <ul class="check-list">
+        <li>Next.js 14 — App Router + SSR</li>
+        <li>Tailwind CSS — Utility-first styling</li>
+        <li>React Query — Server state management</li>
+        <li>Zustand — Client state</li>
+        <li>HLS.js — Reproductor de vídeo</li>
+        <li>React Hook Form + Zod</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon" style="background:rgba(0,0,0,0.4);">⚙</span>Backend</div>
+      <ul class="check-list">
+        <li>Node.js + Express — API REST</li>
+        <li>PostgreSQL — Base de datos principal</li>
+        <li>Redis — Cache + sesiones + rate limiting</li>
+        <li>BullMQ — Cola de procesamiento vídeo</li>
+        <li>FFmpeg — Transcodificación</li>
+        <li>Socket.io — Notificaciones real-time</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon" style="background:rgba(0,0,0,0.4);">☁</span>Infraestructura</div>
+      <ul class="check-list">
+        <li>Docker + Docker Compose</li>
+        <li>Cloudflare R2 — Almacenamiento vídeos</li>
+        <li>Cloudflare Stream — CDN + HLS</li>
+        <li>Nginx — Reverse proxy</li>
+        <li>PM2 — Process manager</li>
+        <li>GitHub Actions — CI/CD</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon" style="background:rgba(0,0,0,0.4);">🔐</span>Autenticación</div>
+      <ul class="check-list">
+        <li>JWT Access + Refresh tokens</li>
+        <li>bcrypt — Hash de contraseñas</li>
+        <li>Nodemailer — Verificación email</li>
+        <li>hCaptcha — Anti-bot</li>
+        <li>2FA opcional (TOTP)</li>
+        <li>OAuth 2.0 (Google, opcional)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon" style="background:rgba(0,0,0,0.4);">💳</span>Pagos</div>
+      <ul class="check-list">
+        <li>CCBill — Suscripciones adultos</li>
+        <li>Segpay — Procesador alternativo</li>
+        <li>Stripe — Pagos generales</li>
+        <li>Crypto (ETH/USDT) — Opcional</li>
+        <li>Webhooks de confirmación</li>
+        <li>Facturación automática (RGPD)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon" style="background:rgba(0,0,0,0.4);">🔍</span>Monitorización</div>
+      <ul class="check-list">
+        <li>Prometheus + Grafana — Métricas</li>
+        <li>Sentry — Error tracking</li>
+        <li>Winston — Logging estructurado</li>
+        <li>Uptime Robot — Disponibilidad</li>
+        <li>Elastic APM — Performance</li>
+        <li>Audit logs — Acciones admin</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- =================== ESTRUCTURA =================== -->
+<section class="section" id="estructura">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Estructura de Carpetas</h2>
+  </div>
+  <p class="section-sub">Arquitectura modular lista para escalar en equipo</p>
+
+  <div class="grid-2">
+    <div class="big-card">
+      <div class="big-card-header">
+        <span class="stripe" style="background:var(--accent2)"></span>
+        <span style="font-size:13px;font-weight:700;">Backend — /server</span>
+      </div>
+      <div class="big-card-body">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">directory tree</span>
+          </div>
+<pre class="tree">
+<span class="dir">server/</span>
+├── <span class="dir">src/</span>
+│   ├── <span class="dir">config/</span>
+│   │   ├── <span class="file">database.js</span>        <span class="comment"># Pool PostgreSQL</span>
+│   │   ├── <span class="file">redis.js</span>           <span class="comment"># Conexión Redis</span>
+│   │   ├── <span class="file">storage.js</span>         <span class="comment"># R2/S3 client</span>
+│   │   └── <span class="file">ffmpeg.js</span>          <span class="comment"># Config FFmpeg</span>
+│   ├── <span class="dir">modules/</span>
+│   │   ├── <span class="dir">auth/</span>
+│   │   │   ├── <span class="file">auth.routes.js</span>
+│   │   │   ├── <span class="file">auth.controller.js</span>
+│   │   │   ├── <span class="file">auth.service.js</span>
+│   │   │   └── <span class="file">auth.middleware.js</span>
+│   │   ├── <span class="dir">users/</span>
+│   │   ├── <span class="dir">videos/</span>
+│   │   ├── <span class="dir">comments/</span>
+│   │   ├── <span class="dir">subscriptions/</span>
+│   │   ├── <span class="dir">payments/</span>
+│   │   ├── <span class="dir">moderation/</span>
+│   │   ├── <span class="dir">copyright/</span>
+│   │   ├── <span class="dir">notifications/</span>
+│   │   └── <span class="dir">analytics/</span>
+│   ├── <span class="dir">middleware/</span>
+│   │   ├── <span class="file">auth.js</span>
+│   │   ├── <span class="file">rateLimit.js</span>
+│   │   ├── <span class="file">upload.js</span>
+│   │   ├── <span class="file">sanitize.js</span>
+│   │   └── <span class="file">audit.js</span>
+│   ├── <span class="dir">workers/</span>
+│   │   ├── <span class="file">videoProcessor.js</span>
+│   │   ├── <span class="file">thumbnailGen.js</span>
+│   │   └── <span class="file">emailWorker.js</span>
+│   ├── <span class="dir">utils/</span>
+│   └── <span class="file">app.js</span>
+├── <span class="dir">migrations/</span>
+└── <span class="file">docker-compose.yml</span>
+</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="big-card">
+      <div class="big-card-header">
+        <span class="stripe" style="background:var(--accent3)"></span>
+        <span style="font-size:13px;font-weight:700;">Frontend — /client</span>
+      </div>
+      <div class="big-card-body">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">directory tree</span>
+          </div>
+<pre class="tree">
+<span class="dir">client/</span>
+├── <span class="dir">app/</span>              <span class="comment"># Next.js App Router</span>
+│   ├── <span class="dir">(auth)/</span>
+│   │   ├── <span class="dir">login/</span>
+│   │   └── <span class="dir">register/</span>
+│   ├── <span class="dir">(main)/</span>
+│   │   ├── <span class="dir">watch/[id]/</span>
+│   │   ├── <span class="dir">profile/[username]/</span>
+│   │   ├── <span class="dir">feed/</span>
+│   │   └── <span class="dir">search/</span>
+│   ├── <span class="dir">creator/</span>
+│   │   ├── <span class="dir">dashboard/</span>
+│   │   ├── <span class="dir">upload/</span>
+│   │   └── <span class="dir">analytics/</span>
+│   └── <span class="dir">admin/</span>
+│       ├── <span class="dir">moderation/</span>
+│       ├── <span class="dir">users/</span>
+│       └── <span class="dir">copyright/</span>
+├── <span class="dir">components/</span>
+│   ├── <span class="dir">player/</span>
+│   ├── <span class="dir">upload/</span>
+│   ├── <span class="dir">modals/</span>
+│   └── <span class="dir">ui/</span>
+├── <span class="dir">lib/</span>
+│   ├── <span class="file">api.js</span>
+│   ├── <span class="file">auth.js</span>
+│   └── <span class="file">analytics.js</span>
+└── <span class="dir">public/</span>
+    └── <span class="dir">legal/</span>    <span class="comment"># PDFs legales</span>
+</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== BASE DE DATOS =================== -->
+<section class="section" id="base-datos">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2 class="section-title">Esquema PostgreSQL</h2>
+  </div>
+  <p class="section-sub">Modelo de datos normalizado y optimizado con índices para alta concurrencia</p>
+
+  <!-- USERS -->
+  <div class="big-card" style="margin-bottom:20px;">
+    <div class="big-card-header">
+      <span class="stripe" style="background:var(--accent2)"></span>
+      <span style="font-size:13px;font-weight:700;">Tabla: users</span>
+      <span class="tag tag-purple" style="margin-left:auto;">Principal</span>
+    </div>
+    <div class="big-card-body">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">PostgreSQL</span>
+        </div>
+<pre>
+<span class="kw">CREATE TABLE</span> users (
+  id              <span class="fn">UUID</span> <span class="kw">PRIMARY KEY DEFAULT</span> <span class="fn">gen_random_uuid</span>(),
+  username        <span class="fn">VARCHAR</span>(<span class="num">50</span>) <span class="kw">UNIQUE NOT NULL</span>,
+  email           <span class="fn">VARCHAR</span>(<span class="num">255</span>) <span class="kw">UNIQUE NOT NULL</span>,
+  password_hash   <span class="fn">TEXT NOT NULL</span>,
+  display_name    <span class="fn">VARCHAR</span>(<span class="num">100</span>),
+  avatar_url      <span class="fn">TEXT</span>,
+  bio             <span class="fn">TEXT</span>,
+  role            <span class="fn">VARCHAR</span>(<span class="num">20</span>) <span class="kw">DEFAULT</span> <span class="str">'user'</span>,   <span class="cm">-- user | creator | admin | moderator</span>
+  status          <span class="fn">VARCHAR</span>(<span class="num">20</span>) <span class="kw">DEFAULT</span> <span class="str">'active'</span>,  <span class="cm">-- active | suspended | banned</span>
+  email_verified  <span class="fn">BOOLEAN DEFAULT FALSE</span>,
+  age_verified    <span class="fn">BOOLEAN DEFAULT FALSE</span>,
+  id_verified     <span class="fn">BOOLEAN DEFAULT FALSE</span>,       <span class="cm">-- verificación documental</span>
+  country         <span class="fn">VARCHAR</span>(<span class="num">2</span>),                    <span class="cm">-- ISO 3166-1 alpha-2</span>
+  gdpr_consent    <span class="fn">BOOLEAN DEFAULT FALSE</span>,
+  consent_date    <span class="fn">TIMESTAMPTZ</span>,
+  consent_ip      <span class="fn">INET</span>,
+  two_fa_secret   <span class="fn">TEXT</span>,
+  two_fa_enabled  <span class="fn">BOOLEAN DEFAULT FALSE</span>,
+  strike_count    <span class="fn">INT DEFAULT 0</span>,
+  last_login      <span class="fn">TIMESTAMPTZ</span>,
+  created_at      <span class="fn">TIMESTAMPTZ DEFAULT NOW</span>(),
+  updated_at      <span class="fn">TIMESTAMPTZ DEFAULT NOW</span>()
+);
+
+<span class="kw">CREATE INDEX</span> idx_users_email   <span class="kw">ON</span> users (email);
+<span class="kw">CREATE INDEX</span> idx_users_username <span class="kw">ON</span> users (username);
+<span class="kw">CREATE INDEX</span> idx_users_role     <span class="kw">ON</span> users (role);
+</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEOS -->
+  <div class="big-card" style="margin-bottom:20px;">
+    <div class="big-card-header">
+      <span class="stripe" style="background:var(--accent)"></span>
+      <span style="font-size:13px;font-weight:700;">Tabla: videos</span>
+      <span class="tag tag-red" style="margin-left:auto;">Core</span>
+    </div>
+    <div class="big-card-body">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">PostgreSQL</span>
+        </div>
+<pre>
+<span class="kw">CREATE TABLE</span> videos (
+  id              <span class="fn">UUID</span> <span class="kw">PRIMARY KEY DEFAULT</span> <span class="fn">gen_random_uuid</span>(),
+  user_id         <span class="fn">UUID</span> <span class="kw">REFERENCES</span> users(id) <span class="kw">ON DELETE CASCADE</span>,
+  title           <span class="fn">VARCHAR</span>(<span class="num">255</span>) <span class="kw">NOT NULL</span>,
+  description     <span class="fn">TEXT</span>,
+  slug            <span class="fn">VARCHAR</span>(<span class="num">255</span>) <span class="kw">UNIQUE NOT NULL</span>,
+  status          <span class="fn">VARCHAR</span>(<span class="num">30</span>) <span class="kw">DEFAULT</span> <span class="str">'processing'</span>,  <span class="cm">-- processing|active|deleted|flagged</span>
+  visibility      <span class="fn">VARCHAR</span>(<span class="num">20</span>) <span class="kw">DEFAULT</span> <span class="str">'public'</span>,      <span class="cm">-- public|private|unlisted|premium</span>
+  duration        <span class="fn">INT</span>,                                 <span class="cm">-- segundos</span>
+  file_size       <span class="fn">BIGINT</span>,                              <span class="cm">-- bytes</span>
+  original_key    <span class="fn">TEXT</span>,                                <span class="cm">-- R2 key original</span>
+  hls_key         <span class="fn">TEXT</span>,                                <span class="cm">-- R2 key manifiesto HLS</span>
+  thumbnail_url   <span class="fn">TEXT</span>,
+  preview_url     <span class="fn">TEXT</span>,                                <span class="cm">-- clip preview 5s</span>
+  resolution_360  <span class="fn">TEXT</span>,                                <span class="cm">-- R2 key</span>
+  resolution_720  <span class="fn">TEXT</span>,
+  resolution_1080 <span class="fn">TEXT</span>,
+  category        <span class="fn">VARCHAR</span>(<span class="num">50</span>),
+  tags            <span class="fn">TEXT[]</span>,
+  is_ai_generated <span class="fn">BOOLEAN DEFAULT FALSE</span>,
+  ai_tools        <span class="fn">TEXT[]</span>,                             <span class="cm">-- herramientas IA usadas</span>
+  is_premium      <span class="fn">BOOLEAN DEFAULT FALSE</span>,
+  price           <span class="fn">DECIMAL</span>(<span class="num">10,2</span>),
+  view_count      <span class="fn">BIGINT DEFAULT 0</span>,
+  like_count      <span class="fn">BIGINT DEFAULT 0</span>,
+  comment_count   <span class="fn">BIGINT DEFAULT 0</span>,
+  copyright_owner <span class="fn">TEXT</span>,
+  copyright_year  <span class="fn">INT</span>,
+  has_consent     <span class="fn">BOOLEAN DEFAULT FALSE</span>,             <span class="cm">-- consentimiento participantes</span>
+  consent_docs    <span class="fn">TEXT[]</span>,                             <span class="cm">-- R2 keys documentos</span>
+  metadata        <span class="fn">JSONB</span>,
+  created_at      <span class="fn">TIMESTAMPTZ DEFAULT NOW</span>(),
+  published_at    <span class="fn">TIMESTAMPTZ</span>,
+  updated_at      <span class="fn">TIMESTAMPTZ DEFAULT NOW</span>()
+);
+
+<span class="kw">CREATE INDEX</span> idx_videos_user_id  <span class="kw">ON</span> videos (user_id);
+<span class="kw">CREATE INDEX</span> idx_videos_status   <span class="kw">ON</span> videos (status);
+<span class="kw">CREATE INDEX</span> idx_videos_category <span class="kw">ON</span> videos (category);
+<span class="kw">CREATE INDEX</span> idx_videos_tags     <span class="kw">ON</span> videos <span class="kw">USING GIN</span> (tags);
+<span class="kw">CREATE INDEX</span> idx_videos_slug     <span class="kw">ON</span> videos (slug);
+</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTRAS TABLAS -->
+  <div class="grid-2">
+    <div class="big-card">
+      <div class="big-card-header">
+        <span class="stripe" style="background:var(--accent3)"></span>
+        <span style="font-size:13px;font-weight:700;">Tablas de Interacción</span>
+      </div>
+      <div class="big-card-body">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">PostgreSQL</span>
+          </div>
+<pre>
+<span class="cm">-- Comentarios</span>
+<span class="kw">CREATE TABLE</span> comments (
+  id         <span class="fn">UUID PRIMARY KEY DEFAULT gen_random_uuid()</span>,
+  video_id   <span class="fn">UUID REFERENCES</span> videos(id) <span class="kw">ON DELETE CASCADE</span>,
+  user_id    <span class="fn">UUID REFERENCES</span> users(id) <span class="kw">ON DELETE CASCADE</span>,
+  parent_id  <span class="fn">UUID REFERENCES</span> comments(id),
+  content    <span class="fn">TEXT NOT NULL</span>,
+  is_pinned  <span class="fn">BOOLEAN DEFAULT FALSE</span>,
+  likes      <span class="fn">INT DEFAULT 0</span>,
+  created_at <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>
+);
+
+<span class="cm">-- Likes / Favoritos</span>
+<span class="kw">CREATE TABLE</span> video_likes (
+  user_id    <span class="fn">UUID REFERENCES</span> users(id),
+  video_id   <span class="fn">UUID REFERENCES</span> videos(id),
+  created_at <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>,
+  <span class="kw">PRIMARY KEY</span> (user_id, video_id)
+);
+
+<span class="cm">-- Seguimientos</span>
+<span class="kw">CREATE TABLE</span> follows (
+  follower_id  <span class="fn">UUID REFERENCES</span> users(id),
+  following_id <span class="fn">UUID REFERENCES</span> users(id),
+  created_at   <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>,
+  <span class="kw">PRIMARY KEY</span> (follower_id, following_id)
+);
+
+<span class="cm">-- Historial de visionado</span>
+<span class="kw">CREATE TABLE</span> watch_history (
+  id          <span class="fn">UUID PRIMARY KEY DEFAULT gen_random_uuid()</span>,
+  user_id     <span class="fn">UUID REFERENCES</span> users(id),
+  video_id    <span class="fn">UUID REFERENCES</span> videos(id),
+  watched_at  <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>,
+  progress    <span class="fn">INT DEFAULT 0</span>  <span class="cm">-- segundos vistos</span>
+);
+</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="big-card">
+      <div class="big-card-header">
+        <span class="stripe" style="background:var(--gold)"></span>
+        <span style="font-size:13px;font-weight:700;">Tablas de Moderación y Legal</span>
+      </div>
+      <div class="big-card-body">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">PostgreSQL</span>
+          </div>
+<pre>
+<span class="cm">-- Reportes de contenido</span>
+<span class="kw">CREATE TABLE</span> reports (
+  id          <span class="fn">UUID PRIMARY KEY DEFAULT gen_random_uuid()</span>,
+  reporter_id <span class="fn">UUID REFERENCES</span> users(id),
+  video_id    <span class="fn">UUID REFERENCES</span> videos(id),
+  reason      <span class="fn">VARCHAR</span>(<span class="num">50</span>) <span class="kw">NOT NULL</span>,
+  description <span class="fn">TEXT</span>,
+  status      <span class="fn">VARCHAR</span>(<span class="num">20</span>) <span class="kw">DEFAULT</span> <span class="str">'pending'</span>,
+  resolved_by <span class="fn">UUID REFERENCES</span> users(id),
+  resolved_at <span class="fn">TIMESTAMPTZ</span>,
+  created_at  <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>
+);
+
+<span class="cm">-- Reclamaciones copyright</span>
+<span class="kw">CREATE TABLE</span> copyright_claims (
+  id              <span class="fn">UUID PRIMARY KEY DEFAULT gen_random_uuid()</span>,
+  claimant_name   <span class="fn">TEXT NOT NULL</span>,
+  claimant_email  <span class="fn">TEXT NOT NULL</span>,
+  video_id        <span class="fn">UUID REFERENCES</span> videos(id),
+  claim_type      <span class="fn">VARCHAR</span>(<span class="num">50</span>),
+  description     <span class="fn">TEXT</span>,
+  evidence_urls   <span class="fn">TEXT[]</span>,
+  status          <span class="fn">VARCHAR</span>(<span class="num">20</span>) <span class="kw">DEFAULT</span> <span class="str">'open'</span>,
+  created_at      <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>
+);
+
+<span class="cm">-- Strikes de usuarios</span>
+<span class="kw">CREATE TABLE</span> user_strikes (
+  id          <span class="fn">UUID PRIMARY KEY DEFAULT gen_random_uuid()</span>,
+  user_id     <span class="fn">UUID REFERENCES</span> users(id),
+  reason      <span class="fn">TEXT NOT NULL</span>,
+  issued_by   <span class="fn">UUID REFERENCES</span> users(id),
+  expires_at  <span class="fn">TIMESTAMPTZ</span>,
+  created_at  <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>
+);
+
+<span class="cm">-- Audit log de acciones admin</span>
+<span class="kw">CREATE TABLE</span> audit_logs (
+  id          <span class="fn">UUID PRIMARY KEY DEFAULT gen_random_uuid()</span>,
+  admin_id    <span class="fn">UUID REFERENCES</span> users(id),
+  action      <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+  target_type <span class="fn">VARCHAR</span>(<span class="num">50</span>),
+  target_id   <span class="fn">UUID</span>,
+  details     <span class="fn">JSONB</span>,
+  ip          <span class="fn">INET</span>,
+  created_at  <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>
+);
+</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suscripciones -->
+  <div class="big-card" style="margin-top:20px;">
+    <div class="big-card-header">
+      <span class="stripe" style="background:var(--green)"></span>
+      <span style="font-size:13px;font-weight:700;">Tablas de Monetización y Suscripciones</span>
+    </div>
+    <div class="big-card-body">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">PostgreSQL</span>
+        </div>
+<pre>
+<span class="cm">-- Planes de suscripción</span>
+<span class="kw">CREATE TABLE</span> subscription_plans (
+  id          <span class="fn">UUID PRIMARY KEY DEFAULT gen_random_uuid()</span>,
+  name        <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+  price       <span class="fn">DECIMAL</span>(<span class="num">10,2</span>) <span class="kw">NOT NULL</span>,
+  currency    <span class="fn">VARCHAR</span>(<span class="num">3</span>) <span class="kw">DEFAULT</span> <span class="str">'EUR'</span>,
+  interval    <span class="fn">VARCHAR</span>(<span class="num">20</span>),         <span class="cm">-- monthly | yearly</span>
+  features    <span class="fn">JSONB</span>,
+  is_active   <span class="fn">BOOLEAN DEFAULT TRUE</span>,
+  created_at  <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>
+);
+
+<span class="cm">-- Suscripciones de usuarios</span>
+<span class="kw">CREATE TABLE</span> subscriptions (
+  id              <span class="fn">UUID PRIMARY KEY DEFAULT gen_random_uuid()</span>,
+  user_id         <span class="fn">UUID REFERENCES</span> users(id),
+  plan_id         <span class="fn">UUID REFERENCES</span> subscription_plans(id),
+  status          <span class="fn">VARCHAR</span>(<span class="num">20</span>) <span class="kw">DEFAULT</span> <span class="str">'active'</span>,
+  payment_method  <span class="fn">VARCHAR</span>(<span class="num">50</span>),    <span class="cm">-- ccbill | stripe | crypto</span>
+  external_id     <span class="fn">TEXT</span>,            <span class="cm">-- ID externo del procesador</span>
+  starts_at       <span class="fn">TIMESTAMPTZ NOT NULL</span>,
+  expires_at      <span class="fn">TIMESTAMPTZ NOT NULL</span>,
+  created_at      <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>
+);
+
+<span class="cm">-- Transacciones de pago</span>
+<span class="kw">CREATE TABLE</span> transactions (
+  id              <span class="fn">UUID PRIMARY KEY DEFAULT gen_random_uuid()</span>,
+  user_id         <span class="fn">UUID REFERENCES</span> users(id),
+  amount          <span class="fn">DECIMAL</span>(<span class="num">10,2</span>) <span class="kw">NOT NULL</span>,
+  currency        <span class="fn">VARCHAR</span>(<span class="num">3</span>) <span class="kw">DEFAULT</span> <span class="str">'EUR'</span>,
+  type            <span class="fn">VARCHAR</span>(<span class="num">30</span>),     <span class="cm">-- subscription | tip | purchase</span>
+  status          <span class="fn">VARCHAR</span>(<span class="num">20</span>),     <span class="cm">-- pending | completed | failed | refunded</span>
+  processor       <span class="fn">VARCHAR</span>(<span class="num">50</span>),
+  processor_txn   <span class="fn">TEXT</span>,
+  metadata        <span class="fn">JSONB</span>,
+  created_at      <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>
+);
+
+<span class="cm">-- Verificación de creadores</span>
+<span class="kw">CREATE TABLE</span> creator_verifications (
+  id              <span class="fn">UUID PRIMARY KEY DEFAULT gen_random_uuid()</span>,
+  user_id         <span class="fn">UUID REFERENCES</span> users(id) <span class="kw">UNIQUE</span>,
+  id_doc_key      <span class="fn">TEXT</span>,            <span class="cm">-- R2 key documento ID (cifrado)</span>
+  selfie_key      <span class="fn">TEXT</span>,            <span class="cm">-- R2 key selfie</span>
+  status          <span class="fn">VARCHAR</span>(<span class="num">20</span>) <span class="kw">DEFAULT</span> <span class="str">'pending'</span>,
+  reviewed_by     <span class="fn">UUID REFERENCES</span> users(id),
+  reviewed_at     <span class="fn">TIMESTAMPTZ</span>,
+  notes           <span class="fn">TEXT</span>,
+  submitted_at    <span class="fn">TIMESTAMPTZ DEFAULT NOW()</span>
+);
+</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== API REST =================== -->
+<section class="section" id="api">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Endpoints API REST</h2>
+  </div>
+  <p class="section-sub">Todos los endpoints bajo <code style="font-family:var(--mono);font-size:14px;color:var(--accent3);">/api/v1</code></p>
+
+  <div class="grid-2">
+    <!-- AUTH -->
+    <div>
+      <div class="ep-group">
+        <div class="ep-group-title">🔐 Autenticación</div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/register</span><span class="ep-desc">Registro usuario</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/login</span><span class="ep-desc">Login + JWT</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/refresh</span><span class="ep-desc">Renovar token</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/logout</span><span class="ep-desc">Cerrar sesión</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/verify-email</span><span class="ep-desc">Verificar email</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/forgot-password</span><span class="ep-desc">Reset password</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/auth/2fa/setup</span><span class="ep-desc">Config. 2FA</span></div>
+      </div>
+
+      <div class="ep-group">
+        <div class="ep-group-title">👤 Usuarios</div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/users/me</span><span class="ep-desc">Perfil propio</span></div>
+        <div class="endpoint"><span class="method PUT">PUT</span><span class="ep-path">/users/me</span><span class="ep-desc">Actualizar perfil</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/users/:username</span><span class="ep-desc">Perfil público</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/users/:id/follow</span><span class="ep-desc">Seguir usuario</span></div>
+        <div class="endpoint"><span class="method DELETE">DEL</span><span class="ep-path">/users/:id/follow</span><span class="ep-desc">Dejar de seguir</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/users/me/history</span><span class="ep-desc">Historial vídeos</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/users/me/favorites</span><span class="ep-desc">Favoritos</span></div>
+        <div class="endpoint"><span class="method DELETE">DEL</span><span class="ep-path">/users/me/account</span><span class="ep-desc">Eliminar cuenta</span></div>
+      </div>
+
+      <div class="ep-group">
+        <div class="ep-group-title">🎬 Vídeos</div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/videos</span><span class="ep-desc">Listado feed</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/videos/:id</span><span class="ep-desc">Detalle vídeo</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/videos/upload</span><span class="ep-desc">Subir vídeo</span></div>
+        <div class="endpoint"><span class="method PATCH">PATCH</span><span class="ep-path">/videos/:id</span><span class="ep-desc">Editar metadatos</span></div>
+        <div class="endpoint"><span class="method DELETE">DEL</span><span class="ep-path">/videos/:id</span><span class="ep-desc">Eliminar vídeo</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/videos/:id/like</span><span class="ep-desc">Dar like</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/videos/:id/stream</span><span class="ep-desc">Stream HLS</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/videos/search</span><span class="ep-desc">Búsqueda vídeos</span></div>
+      </div>
+    </div>
+
+    <!-- MORE ENDPOINTS -->
+    <div>
+      <div class="ep-group">
+        <div class="ep-group-title">💬 Comentarios</div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/videos/:id/comments</span><span class="ep-desc">Listar comentarios</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/videos/:id/comments</span><span class="ep-desc">Añadir comentario</span></div>
+        <div class="endpoint"><span class="method DELETE">DEL</span><span class="ep-path">/comments/:id</span><span class="ep-desc">Eliminar comentario</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/comments/:id/like</span><span class="ep-desc">Like comentario</span></div>
+      </div>
+
+      <div class="ep-group">
+        <div class="ep-group-title">💳 Pagos y Suscripciones</div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/subscriptions/plans</span><span class="ep-desc">Planes disponibles</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/subscriptions/subscribe</span><span class="ep-desc">Suscribirse</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/subscriptions/cancel</span><span class="ep-desc">Cancelar suscripción</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/payments/history</span><span class="ep-desc">Historial pagos</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/payments/tip/:creatorId</span><span class="ep-desc">Enviar propina</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/webhooks/ccbill</span><span class="ep-desc">Webhook CCBill</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/webhooks/stripe</span><span class="ep-desc">Webhook Stripe</span></div>
+      </div>
+
+      <div class="ep-group">
+        <div class="ep-group-title">⚠️ Reportes y Copyright</div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/reports</span><span class="ep-desc">Reportar contenido</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/reports/:id</span><span class="ep-desc">Ver reporte</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/copyright/claim</span><span class="ep-desc">Reclamación DMCA</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/copyright/claims</span><span class="ep-desc">Mis reclamaciones</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/copyright/appeal</span><span class="ep-desc">Apelar reclamación</span></div>
+      </div>
+
+      <div class="ep-group">
+        <div class="ep-group-title">🛡 Admin</div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/admin/users</span><span class="ep-desc">Gestión usuarios</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/admin/users/:id/ban</span><span class="ep-desc">Banear usuario</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/admin/reports</span><span class="ep-desc">Cola reportes</span></div>
+        <div class="endpoint"><span class="method POST">POST</span><span class="ep-path">/admin/videos/:id/takedown</span><span class="ep-desc">Retirar vídeo</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/admin/verifications</span><span class="ep-desc">Verificaciones pendientes</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/admin/audit-logs</span><span class="ep-desc">Logs auditoría</span></div>
+        <div class="endpoint"><span class="method GET">GET</span><span class="ep-path">/admin/stats</span><span class="ep-desc">Dashboard stats</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== AUTH =================== -->
+<section class="section" id="auth">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2 class="section-title">Autenticación y Middleware</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="big-card">
+      <div class="big-card-header">
+        <span class="stripe" style="background:var(--accent2)"></span>
+        <span style="font-size:13px;font-weight:700;">JWT Middleware</span>
+      </div>
+      <div class="big-card-body">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">JavaScript</span>
+          </div>
+<pre>
+<span class="cm">// middleware/auth.js</span>
+<span class="kw">const</span> jwt = <span class="fn">require</span>(<span class="str">'jsonwebtoken'</span>);
+
+<span class="kw">const</span> <span class="fn">authenticate</span> = <span class="kw">async</span> (req, res, next) => {
+  <span class="kw">const</span> token = req.headers.authorization
+    ?.replace(<span class="str">'Bearer '</span>, <span class="str">''</span>);
+
+  <span class="kw">if</span> (!token) <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">401</span>).<span class="fn">json</span>({
+    error: <span class="str">'Token requerido'</span>
+  });
+
+  <span class="kw">try</span> {
+    <span class="kw">const</span> payload = jwt.<span class="fn">verify</span>(token, process.env.JWT_SECRET);
+    req.user = <span class="kw">await</span> <span class="fn">getUserById</span>(payload.sub);
+    <span class="kw">if</span> (req.user.status !== <span class="str">'active'</span>)
+      <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">403</span>).<span class="fn">json</span>({ error: <span class="str">'Cuenta suspendida'</span> });
+    <span class="fn">next</span>();
+  } <span class="kw">catch</span> (err) {
+    res.<span class="fn">status</span>(<span class="num">401</span>).<span class="fn">json</span>({ error: <span class="str">'Token inválido'</span> });
+  }
+};
+
+<span class="kw">const</span> <span class="fn">requireRole</span> = (...roles) => (req, res, next) => {
+  <span class="kw">if</span> (!roles.<span class="fn">includes</span>(req.user.role))
+    <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">403</span>).<span class="fn">json</span>({ error: <span class="str">'Sin permisos'</span> });
+  <span class="fn">next</span>();
+};
+
+module.exports = { authenticate, requireRole };
+</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="big-card">
+      <div class="big-card-header">
+        <span class="stripe" style="background:var(--accent)"></span>
+        <span style="font-size:13px;font-weight:700;">Rate Limiting y Seguridad</span>
+      </div>
+      <div class="big-card-body">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">JavaScript</span>
+          </div>
+<pre>
+<span class="cm">// middleware/rateLimit.js</span>
+<span class="kw">const</span> rateLimit = <span class="fn">require</span>(<span class="str">'express-rate-limit'</span>);
+<span class="kw">const</span> RedisStore = <span class="fn">require</span>(<span class="str">'rate-limit-redis'</span>);
+
+<span class="kw">const</span> authLimiter = <span class="fn">rateLimit</span>({
+  windowMs: <span class="num">15</span> * <span class="num">60</span> * <span class="num">1000</span>,  <span class="cm">// 15 min</span>
+  max: <span class="num">10</span>,
+  store: <span class="kw">new</span> <span class="fn">RedisStore</span>({ client: redis }),
+  message: { error: <span class="str">'Demasiados intentos'</span> }
+});
+
+<span class="kw">const</span> uploadLimiter = <span class="fn">rateLimit</span>({
+  windowMs: <span class="num">60</span> * <span class="num">60</span> * <span class="num">1000</span>,  <span class="cm">// 1 hora</span>
+  max: <span class="num">5</span>,
+  message: { error: <span class="str">'Límite de subidas alcanzado'</span> }
+});
+
+<span class="cm">// middleware/sanitize.js — limpieza XSS</span>
+<span class="kw">const</span> sanitize = (req, res, next) => {
+  req.body = <span class="fn">sanitizeObject</span>(req.body);
+  <span class="fn">next</span>();
+};
+
+<span class="cm">// app.js — helmet + CORS</span>
+app.<span class="fn">use</span>(<span class="fn">helmet</span>());
+app.<span class="fn">use</span>(<span class="fn">cors</span>({ origin: process.env.ALLOWED_ORIGINS }));
+app.<span class="fn">use</span>(<span class="fn">sanitize</span>);
+app.<span class="fn">use</span>(<span class="str">'/api/v1/auth'</span>, authLimiter);
+app.<span class="fn">use</span>(<span class="str">'/api/v1/videos/upload'</span>, uploadLimiter);
+</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== VIDEO =================== -->
+<section class="section" id="video">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2 class="section-title">Pipeline de Procesamiento de Vídeo</h2>
+  </div>
+  <p class="section-sub">Flujo completo desde la subida hasta la publicación con HLS</p>
+
+  <!-- FLOW -->
+  <div style="overflow-x:auto;margin-bottom:32px;">
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-box accent">Cliente</div>
+        <div class="flow-sub">Selecciona archivo</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box">Validación</div>
+        <div class="flow-sub">Tipo, tamaño, MIME</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box cyan">R2 Temp</div>
+        <div class="flow-sub">Almacenamiento temporal</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box">BullMQ</div>
+        <div class="flow-sub">Encolar trabajo</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box gold">FFmpeg</div>
+        <div class="flow-sub">Transcodificar</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box">HLS Segments</div>
+        <div class="flow-sub">360/720/1080p</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box cyan">R2 Final</div>
+        <div class="flow-sub">Almacenamiento permanente</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box green">Publicado</div>
+        <div class="flow-sub">Disponible en CDN</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="big-card">
+    <div class="big-card-header">
+      <span class="stripe" style="background:var(--gold)"></span>
+      <span style="font-size:13px;font-weight:700;">Worker de Procesamiento FFmpeg</span>
+    </div>
+    <div class="big-card-body">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">JavaScript</span>
+        </div>
+<pre>
+<span class="cm">// workers/videoProcessor.js</span>
+<span class="kw">const</span> { Worker } = <span class="fn">require</span>(<span class="str">'bullmq'</span>);
+<span class="kw">const</span> ffmpeg = <span class="fn">require</span>(<span class="str">'fluent-ffmpeg'</span>);
+
+<span class="kw">const</span> videoWorker = <span class="kw">new</span> <span class="fn">Worker</span>(<span class="str">'video-processing'</span>, <span class="kw">async</span> (job) => {
+  <span class="kw">const</span> { videoId, inputPath, outputDir } = job.data;
+
+  <span class="cm">// 1. Generar miniaturas</span>
+  <span class="kw">await</span> <span class="fn">generateThumbnails</span>(inputPath, outputDir, videoId);
+
+  <span class="cm">// 2. Transcodificar a múltiples resoluciones</span>
+  <span class="kw">const</span> resolutions = [
+    { name: <span class="str">'360p'</span>,  width: <span class="num">640</span>,  height: <span class="num">360</span>,  bitrate: <span class="str">'800k'</span>  },
+    { name: <span class="str">'720p'</span>,  width: <span class="num">1280</span>, height: <span class="num">720</span>,  bitrate: <span class="str">'2500k'</span> },
+    { name: <span class="str">'1080p'</span>, width: <span class="num">1920</span>, height: <span class="num">1080</span>, bitrate: <span class="str">'5000k'</span> }
+  ];
+
+  <span class="kw">for</span> (<span class="kw">const</span> res <span class="kw">of</span> resolutions) {
+    <span class="kw">await</span> <span class="fn">transcodeToHLS</span>(inputPath, outputDir, res);
+    <span class="kw">await</span> job.<span class="fn">updateProgress</span>(
+      (<span class="num">resolutions</span>.indexOf(res) + <span class="num">1</span>) / resolutions.length * <span class="num">100</span>
+    );
+  }
+
+  <span class="cm">// 3. Generar manifiesto HLS maestro</span>
+  <span class="kw">await</span> <span class="fn">generateMasterManifest</span>(outputDir, videoId, resolutions);
+
+  <span class="cm">// 4. Generar preview clip (5 segundos)</span>
+  <span class="kw">await</span> <span class="fn">generatePreviewClip</span>(inputPath, outputDir, videoId);
+
+  <span class="cm">// 5. Subir todo a R2</span>
+  <span class="kw">const</span> r2Keys = <span class="kw">await</span> <span class="fn">uploadToR2</span>(outputDir, videoId);
+
+  <span class="cm">// 6. Actualizar BD</span>
+  <span class="kw">await</span> <span class="fn">updateVideoRecord</span>(videoId, {
+    status: <span class="str">'active'</span>,
+    ...r2Keys
+  });
+}, { concurrency: <span class="num">3</span> });
+
+<span class="kw">async function</span> <span class="fn">transcodeToHLS</span>(input, outputDir, res) {
+  <span class="kw">return new</span> <span class="fn">Promise</span>((resolve, reject) => {
+    <span class="fn">ffmpeg</span>(input)
+      .<span class="fn">videoCodec</span>(<span class="str">'libx264'</span>)
+      .<span class="fn">audioCodec</span>(<span class="str">'aac'</span>)
+      .<span class="fn">size</span>(<span class="str">`</span>${res.width}<span class="str">x</span>${res.height}<span class="str">`</span>)
+      .<span class="fn">videoBitrate</span>(res.bitrate)
+      .<span class="fn">outputOptions</span>([
+        <span class="str">'-hls_time 6'</span>,
+        <span class="str">'-hls_playlist_type vod'</span>,
+        <span class="str">'-hls_segment_filename'</span>,
+        <span class="str">`</span>${outputDir}/<span class="str">${res.name}_%03d.ts`</span>
+      ])
+      .<span class="fn">output</span>(<span class="str">`</span>${outputDir}/<span class="str">${res.name}.m3u8`</span>)
+      .<span class="fn">on</span>(<span class="str">'end'</span>, resolve)
+      .<span class="fn">on</span>(<span class="str">'error'</span>, reject)
+      .<span class="fn">run</span>();
+  });
+}
+</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== STREAMING =================== -->
+<section class="section" id="streaming">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2 class="section-title">HLS Streaming</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="big-card">
+      <div class="big-card-header">
+        <span class="stripe" style="background:var(--accent3)"></span>
+        <span style="font-size:13px;font-weight:700;">Reproductor HLS (Next.js Component)</span>
+      </div>
+      <div class="big-card-body">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">React / Next.js</span>
+          </div>
+<pre>
+<span class="cm">// components/player/VideoPlayer.jsx</span>
+<span class="str">'use client'</span>;
+<span class="kw">import</span> { useEffect, useRef } <span class="kw">from</span> <span class="str">'react'</span>;
+<span class="kw">import</span> Hls <span class="kw">from</span> <span class="str">'hls.js'</span>;
+
+<span class="kw">export default function</span> <span class="fn">VideoPlayer</span>({ videoId, hlsUrl }) {
+  <span class="kw">const</span> videoRef = <span class="fn">useRef</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="kw">const</span> video = videoRef.current;
+    <span class="kw">if</span> (!video || !hlsUrl) <span class="kw">return</span>;
+
+    <span class="kw">if</span> (Hls.<span class="fn">isSupported</span>()) {
+      <span class="kw">const</span> hls = <span class="kw">new</span> <span class="fn">Hls</span>({
+        enableWorker: <span class="kw">true</span>,
+        lowLatencyMode: <span class="kw">false</span>,
+        xhrSetup: (xhr) => {
+          xhr.<span class="fn">setRequestHeader</span>(
+            <span class="str">'Authorization'</span>,
+            <span class="str">`Bearer </span>${<span class="fn">getToken</span>()}<span class="str">`</span>
+          );
+        }
+      });
+      hls.<span class="fn">loadSource</span>(hlsUrl);
+      hls.<span class="fn">attachMedia</span>(video);
+    } <span class="kw">else if</span> (video.<span class="fn">canPlayType</span>(<span class="str">'application/vnd.apple.mpegurl'</span>)) {
+      video.src = hlsUrl; <span class="cm">// Safari nativo</span>
+    }
+  }, [hlsUrl]);
+
+  <span class="kw">return</span> (
+    &lt;video
+      ref={videoRef}
+      controls
+      playsInline
+      className=<span class="str">"w-full aspect-video rounded-xl"</span>
+    /&gt;
+  );
+}
+</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="big-card">
+      <div class="big-card-header">
+        <span class="stripe" style="background:var(--accent)"></span>
+        <span style="font-size:13px;font-weight:700;">Protección y CDN</span>
+      </div>
+      <div class="big-card-body">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">JavaScript</span>
+          </div>
+<pre>
+<span class="cm">// Signed URLs para R2 (anti-hotlink)</span>
+<span class="kw">async function</span> <span class="fn">getSignedStreamUrl</span>(videoId, userId) {
+  <span class="kw">const</span> hasAccess = <span class="kw">await</span> <span class="fn">checkVideoAccess</span>(videoId, userId);
+  <span class="kw">if</span> (!hasAccess) <span class="kw">throw new</span> <span class="fn">ForbiddenError</span>();
+
+  <span class="kw">const</span> key = <span class="str">`videos/</span>${videoId}<span class="str">/master.m3u8`</span>;
+
+  <span class="kw">const</span> signedUrl = <span class="kw">await</span> r2Client.<span class="fn">getSignedUrl</span>(
+    <span class="kw">new</span> <span class="fn">GetObjectCommand</span>({ Bucket: R2_BUCKET, Key: key }),
+    { expiresIn: <span class="num">3600</span> }  <span class="cm">// 1 hora</span>
+  );
+
+  <span class="kw">return</span> signedUrl;
+}
+
+<span class="cm">// Endpoint de streaming protegido</span>
+app.<span class="fn">get</span>(<span class="str">'/api/v1/videos/:id/stream'</span>,
+  authenticate,
+  <span class="kw">async</span> (req, res) => {
+    <span class="kw">const</span> url = <span class="kw">await</span> <span class="fn">getSignedStreamUrl</span>(
+      req.params.id,
+      req.user.id
+    );
+    <span class="cm">// Registrar view</span>
+    <span class="kw">await</span> <span class="fn">incrementViewCount</span>(req.params.id);
+    res.<span class="fn">json</span>({ streamUrl: url });
+  }
+);
+</pre>
+        </div>
+        <div class="alert alert-info" style="margin-top:16px;">
+          <span>ℹ</span>
+          <div>Los segmentos HLS (<code>.ts</code>) también van firmados individualmente. Cloudflare Workers puede validar el token en el edge sin tocar el servidor.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== LEGAL =================== -->
+<section class="section" id="legal">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2 class="section-title">Marco Legal — España / Europa</h2>
+  </div>
+  <p class="section-sub">Cumplimiento RGPD, LSSI, DSA y normativa española</p>
+
+  <div class="grid-3" style="margin-bottom:24px;">
+    <div class="card">
+      <div class="card-title"><span class="icon" style="background:rgba(245,158,11,0.1);color:var(--gold);">📋</span>Documentos Requeridos</div>
+      <ul class="check-list">
+        <li>Aviso Legal (LSSI Art. 10)</li>
+        <li>Política de Privacidad (RGPD)</li>
+        <li>Política de Cookies (LSSI)</li>
+        <li>Términos y Condiciones de Uso</li>
+        <li>Política de Copyright / DMCA</li>
+        <li>Política de Contenido IA</li>
+        <li>Política de Derechos de Imagen</li>
+        <li>Política de Menores</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon" style="background:rgba(16,185,129,0.1);color:var(--green);">✅</span>Consentimientos</div>
+      <ul class="check-list">
+        <li>Popup mayoría de edad al entrar</li>
+        <li>Banner cookies (aceptar/rechazar)</li>
+        <li>Consentimiento explícito RGPD registro</li>
+        <li>Double opt-in email marketing</li>
+        <li>Consentimiento participantes en vídeo</li>
+        <li>Log de consentimientos (fecha + IP)</li>
+        <li>Derecho al olvido implementado</li>
+        <li>Portabilidad de datos (RGPD Art. 20)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon" style="background:rgba(255,77,109,0.1);color:var(--accent);">⚖️</span>Regulaciones Aplicables</div>
+      <ul class="check-list">
+        <li>RGPD — Reglamento UE 2016/679</li>
+        <li>LSSI-CE — Ley 34/2002</li>
+        <li>LOPDGDD — Ley Orgánica 3/2018</li>
+        <li>DSA — Digital Services Act (UE)</li>
+        <li>Ley de Propiedad Intelectual española</li>
+        <li>Directiva 2019/790 (copyright digital)</li>
+        <li>Reglamento IA UE 2024 (AI Act)</li>
+        <li>AEPD — Resoluciones aplicables</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- VERIFICACIÓN DE EDAD -->
+  <div class="big-card">
+    <div class="big-card-header">
+      <span class="stripe" style="background:var(--gold)"></span>
+      <span style="font-size:13px;font-weight:700;">Flujo de Verificación de Edad y Consentimiento</span>
+    </div>
+    <div class="big-card-body">
+      <div style="overflow-x:auto;">
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-box accent">Acceso web</div>
+            <div class="flow-sub">Primera visita</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-box gold">Popup edad</div>
+            <div class="flow-sub">Confirmar +18</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-box">Cookies</div>
+            <div class="flow-sub">Aceptar/rechazar</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-box">Registro</div>
+            <div class="flow-sub">Datos + CAPTCHA</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-box cyan">Email verify</div>
+            <div class="flow-sub">Double opt-in</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-box">Usuario activo</div>
+            <div class="flow-sub">Acceso completo</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-box gold">Creator verify</div>
+            <div class="flow-sub">ID + Selfie</div>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-box green">Creador</div>
+            <div class="flow-sub">Puede subir vídeos</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warn" style="margin-top:20px;">
+        <span>⚠</span>
+        <div><strong>Requisito legal:</strong> Para plataformas con contenido adulto, el AI Act y DSA exigen verificación robusta de edad. Considera integrar un servicio como AgeID, Veriff o IDnow para cumplir con los estándares requeridos por la AEPD.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== MODERACIÓN =================== -->
+<section class="section" id="moderacion">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2 class="section-title">Sistema de Moderación</h2>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:16px;">Flujo de Report → Acción</h3>
+      <div style="overflow-x:auto;">
+        <div class="flow" style="flex-direction:column;gap:8px;">
+          <div class="flow-step" style="width:100%;min-width:unset;">
+            <div class="flow-box" style="text-align:left;">1. Usuario reporta contenido → DB + notif admin</div>
+          </div>
+          <div class="flow-arrow" style="transform:rotate(90deg);align-self:center;">→</div>
+          <div class="flow-step" style="width:100%;min-width:unset;">
+            <div class="flow-box" style="text-align:left;">2. Moderador revisa en panel admin</div>
+          </div>
+          <div class="flow-arrow" style="transform:rotate(90deg);align-self:center;">→</div>
+          <div class="flow-step" style="width:100%;min-width:unset;">
+            <div class="flow-box gold" style="text-align:left;">3. Decisión: Desestimar / Advertir / Strike / Eliminar</div>
+          </div>
+          <div class="flow-arrow" style="transform:rotate(90deg);align-self:center;">→</div>
+          <div class="flow-step" style="width:100%;min-width:unset;">
+            <div class="flow-box" style="text-align:left;">4. Notificación al usuario afectado</div>
+          </div>
+          <div class="flow-arrow" style="transform:rotate(90deg);align-self:center;">→</div>
+          <div class="flow-step" style="width:100%;min-width:unset;">
+            <div class="flow-box cyan" style="text-align:left;">5. Registro en audit_log (admin + acción + fecha)</div>
+          </div>
+          <div class="flow-arrow" style="transform:rotate(90deg);align-self:center;">→</div>
+          <div class="flow-step" style="width:100%;min-width:unset;">
+            <div class="flow-box green" style="text-align:left;">6. Posibilidad de apelación (48-72h)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:16px;">Sistema de Strikes</h3>
+      <div class="card" style="margin-bottom:16px;">
+        <table class="data-table">
+          <thead>
+            <tr><th>Strikes</th><th>Consecuencia</th><th>Duración</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="tag tag-cyan">1 strike</span></td><td>Advertencia + email</td><td>—</td></tr>
+            <tr><td><span class="tag tag-gold">2 strikes</span></td><td>Suspensión uploads</td><td>7 días</td></tr>
+            <tr><td><span class="tag tag-red">3 strikes</span></td><td>Cuenta suspendida</td><td>30 días</td></tr>
+            <tr><td><span class="tag tag-red">4+ strikes</span></td><td>Ban permanente</td><td>Permanente</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="font-size:18px;font-weight:700;margin:24px 0 16px;">Takedown de Copyright</h3>
+      <div style="overflow-x:auto;">
+        <div class="flow" style="flex-direction:column;gap:8px;">
+          <div class="flow-step" style="width:100%;min-width:unset;">
+            <div class="flow-box accent" style="text-align:left;">Reclamación recibida (formulario DMCA)</div>
+          </div>
+          <div class="flow-arrow" style="transform:rotate(90deg);align-self:center;">→</div>
+          <div class="flow-step" style="width:100%;min-width:unset;">
+            <div class="flow-box" style="text-align:left;">Revisión admin (plazo legal: 24-48h)</div>
+          </div>
+          <div class="flow-arrow" style="transform:rotate(90deg);align-self:center;">→</div>
+          <div class="flow-step" style="width:100%;min-width:unset;">
+            <div class="flow-box red" style="text-align:left;">Takedown: vídeo oculto + notif. al creador</div>
+          </div>
+          <div class="flow-arrow" style="transform:rotate(90deg);align-self:center;">→</div>
+          <div class="flow-step" style="width:100%;min-width:unset;">
+            <div class="flow-box" style="text-align:left;">Período apelación (10 días hábiles)</div>
+          </div>
+          <div class="flow-arrow" style="transform:rotate(90deg);align-self:center;">→</div>
+          <div class="flow-step" style="width:100%;min-width:unset;">
+            <div class="flow-box green" style="text-align:left;">Resolución final + log legal</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== MONETIZACIÓN =================== -->
+<section class="section" id="monetizacion">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <h2 class="section-title">Sistema de Monetización</h2>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:24px;">
+    <div class="card">
+      <div class="card-title" style="font-size:12px;">💎 Suscripciones Premium</div>
+      <ul class="check-list">
+        <li>Plan básico / pro / creator</li>
+        <li>Facturación mensual/anual</li>
+        <li>CCBill + Segpay + Stripe</li>
+        <li>Auto-renovación + emails</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="font-size:12px;">📣 Publicidad</div>
+      <ul class="check-list">
+        <li>Pre-roll ads (15/30s)</li>
+        <li>Banner display</li>
+        <li>Sponsored content</li>
+        <li>Sin ads para premium</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="font-size:12px;">💸 Propinas (Tips)</div>
+      <ul class="check-list">
+        <li>Propina directa creador</li>
+        <li>Tokens de crédito</li>
+        <li>Crypto (ETH/USDT)</li>
+        <li>Revenue split configurable</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="font-size:12px;">🤝 Afiliados</div>
+      <ul class="check-list">
+        <li>Links de referido únicos</li>
+        <li>Comisión por conversión</li>
+        <li>Dashboard de afiliados</li>
+        <li>Pago mensual automático</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="big-card">
+    <div class="big-card-header">
+      <span class="stripe" style="background:var(--green)"></span>
+      <span style="font-size:13px;font-weight:700;">Revenue Sharing — Fórmula de Distribución</span>
+    </div>
+    <div class="big-card-body">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">JavaScript</span>
+        </div>
+<pre>
+<span class="cm">// services/revenueShare.js</span>
+<span class="kw">const</span> PLATFORM_CUT = <span class="num">0.25</span>;   <span class="cm">// 25% plataforma</span>
+<span class="kw">const</span> CREATOR_CUT  = <span class="num">0.75</span>;   <span class="cm">// 75% creador</span>
+
+<span class="kw">async function</span> <span class="fn">distributeRevenue</span>(transaction) {
+  <span class="kw">const</span> { amount, videoId, userId } = transaction;
+
+  <span class="kw">const</span> video = <span class="kw">await</span> <span class="fn">getVideo</span>(videoId);
+  <span class="kw">const</span> creatorShare = amount * CREATOR_CUT;
+  <span class="kw">const</span> platformShare = amount * PLATFORM_CUT;
+
+  <span class="cm">// Acumular en wallet del creador</span>
+  <span class="kw">await</span> <span class="fn">addToCreatorWallet</span>(video.user_id, creatorShare);
+
+  <span class="cm">// Registrar distribución</span>
+  <span class="kw">await</span> <span class="fn">logRevenueDistribution</span>({
+    transaction_id: transaction.id,
+    creator_id: video.user_id,
+    creator_amount: creatorShare,
+    platform_amount: platformShare,
+    currency: transaction.currency
+  });
+
+  <span class="cm">// Factura automática si supera umbral</span>
+  <span class="kw">if</span> (<span class="kw">await</span> <span class="fn">walletExceedsThreshold</span>(video.user_id)) {
+    <span class="kw">await</span> <span class="fn">scheduleCreatorPayout</span>(video.user_id);
+  }
+}
+</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== SEGURIDAD =================== -->
+<section class="section" id="seguridad">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <h2 class="section-title">Seguridad</h2>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title">🛡 Headers HTTP</div>
+      <ul class="check-list">
+        <li>Helmet.js — Headers seguros</li>
+        <li>CSP — Content Security Policy</li>
+        <li>HSTS — Forzar HTTPS</li>
+        <li>X-Frame-Options: DENY</li>
+        <li>Referrer-Policy: strict-origin</li>
+        <li>Permissions-Policy</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">🔒 Validación y Sanitización</div>
+      <ul class="check-list">
+        <li>Zod — Validación schemas API</li>
+        <li>DOMPurify — Sanitizar HTML</li>
+        <li>express-validator — Inputs</li>
+        <li>Parameterized queries (sin SQL injection)</li>
+        <li>File type validation (MIME + magic bytes)</li>
+        <li>Límites de tamaño por tipo de fichero</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">🤖 Anti-Abuso</div>
+      <ul class="check-list">
+        <li>hCaptcha — Registro y subidas</li>
+        <li>Rate limiting por IP + usuario</li>
+        <li>Bot detection (user-agent analysis)</li>
+        <li>IP blacklist automática</li>
+        <li>Detección de uploads duplicados (hash)</li>
+        <li>Honeypot fields en formularios</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">📁 Seguridad en Uploads</div>
+      <ul class="check-list">
+        <li>Validación MIME type servidor</li>
+        <li>ClamAV — Scan antivirus</li>
+        <li>Isolación en entorno sandbox</li>
+        <li>Quarantine antes de procesar</li>
+        <li>No ejecutar en servidor principal</li>
+        <li>Límite: 10GB por vídeo (configurable)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Logging y Auditoría</div>
+      <ul class="check-list">
+        <li>Winston — Logs estructurados JSON</li>
+        <li>Todas las acciones admin logueadas</li>
+        <li>IPs sospechosas → alerta</li>
+        <li>Intentos de login fallidos</li>
+        <li>Rotación logs + retención 90 días</li>
+        <li>Sentry — Error tracking producción</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">🔑 Gestión de Secretos</div>
+      <ul class="check-list">
+        <li>Variables de entorno (.env)</li>
+        <li>Docker Secrets en producción</li>
+        <li>Rotación periódica JWT secret</li>
+        <li>Cifrado AES-256 docs de identidad</li>
+        <li>Vault (HashiCorp) opcional</li>
+        <li>Nunca secretos en código fuente</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- =================== SEO =================== -->
+<section class="section" id="seo">
+  <div class="section-header">
+    <span class="section-num">12</span>
+    <h2 class="section-title">SEO y Rendimiento</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="big-card">
+      <div class="big-card-header">
+        <span class="stripe" style="background:var(--accent2)"></span>
+        <span style="font-size:13px;font-weight:700;">Metadata Dinámica (Next.js)</span>
+      </div>
+      <div class="big-card-body">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <span class="code-lang">Next.js / TypeScript</span>
+          </div>
+<pre>
+<span class="cm">// app/watch/[id]/page.tsx</span>
+<span class="kw">export async function</span> <span class="fn">generateMetadata</span>({ params }) {
+  <span class="kw">const</span> video = <span class="kw">await</span> <span class="fn">getVideo</span>(params.id);
+  <span class="kw">return</span> {
+    title: <span class="str">`</span>${video.title}<span class="str"> — StreamForge`</span>,
+    description: video.description?.slice(<span class="num">0</span>, <span class="num">160</span>),
+    openGraph: {
+      type: <span class="str">'video.other'</span>,
+      title: video.title,
+      images: [{ url: video.thumbnail_url }],
+      videos: [{ url: video.preview_url }]
+    },
+    twitter: {
+      card: <span class="str">'player'</span>,
+      title: video.title,
+      images: [video.thumbnail_url]
+    },
+    alternates: {
+      canonical: <span class="str">`https://streamforge.es/watch/</span>${video.slug}<span class="str">`</span>
+    }
+  };
+}
+
+<span class="cm">// Schema.org VideoObject</span>
+<span class="kw">const</span> jsonLd = {
+  <span class="str">'@context'</span>: <span class="str">'https://schema.org'</span>,
+  <span class="str">'@type'</span>: <span class="str">'VideoObject'</span>,
+  name: video.title,
+  description: video.description,
+  thumbnailUrl: video.thumbnail_url,
+  uploadDate: video.published_at,
+  duration: <span class="fn">formatIsoDuration</span>(video.duration),
+  contentUrl: video.preview_url
+};
+</pre>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">🗺 Sitemap Dinámico</div>
+        <ul class="check-list">
+          <li>Sitemap XML generado automáticamente</li>
+          <li>Sitemap de vídeos (Google Video Sitemap)</li>
+          <li>Sitemap de perfiles de creadores</li>
+          <li>robots.txt con reglas de crawler</li>
+          <li>Ping automático a Google/Bing al publicar</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">⚡ Performance</div>
+        <ul class="check-list">
+          <li>SSR en páginas de vídeo (SEO + TTI)</li>
+          <li>ISR — Revalidación incremental estática</li>
+          <li>Lazy loading de vídeos en listados</li>
+          <li>WebP automático para thumbnails</li>
+          <li>Core Web Vitals: LCP &lt; 2.5s objetivo</li>
+          <li>Cloudflare CDN para assets estáticos</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">🔗 URLs Amigables</div>
+        <ul class="check-list">
+          <li><code style="font-family:var(--mono);font-size:11px;color:var(--accent3);">/watch/titulo-del-video-abc123</code></li>
+          <li><code style="font-family:var(--mono);font-size:11px;color:var(--accent3);">/@username</code> — Perfil creador</li>
+          <li><code style="font-family:var(--mono);font-size:11px;color:var(--accent3);">/category/nombre</code> — Categorías</li>
+          <li>Slugs generados automáticamente</li>
+          <li>Redirecciones 301 en cambios de slug</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FRONTEND =================== -->
+<section class="section" id="frontend">
+  <div class="section-header">
+    <span class="section-num">13</span>
+    <h2 class="section-title">Componentes Frontend</h2>
+  </div>
+
+  <div class="grid-auto">
+    <div class="card"><div class="card-title" style="font-size:12px;">🎬 VideoCard</div><div style="font-size:12px;color:var(--muted);">Thumbnail, título, duración, vistas, avatar creador, badge IA</div></div>
+    <div class="card"><div class="card-title" style="font-size:12px;">📺 VideoPlayer</div><div style="font-size:12px;color:var(--muted);">HLS.js, controles personalizados, selector calidad, subtítulos</div></div>
+    <div class="card"><div class="card-title" style="font-size:12px;">⬆️ UploadWizard</div><div style="font-size:12px;color:var(--muted);">Drag & drop, progreso, metadatos, consentimientos, categorías</div></div>
+    <div class="card"><div class="card-title" style="font-size:12px;">👤 ProfileHeader</div><div style="font-size:12px;color:var(--muted);">Avatar, stats, botón seguir/suscribir, verificación badge</div></div>
+    <div class="card"><div class="card-title" style="font-size:12px;">💬 CommentSection</div><div style="font-size:12px;color:var(--muted);">Árbol comentarios, respuestas, likes, moderación inline</div></div>
+    <div class="card"><div class="card-title" style="font-size:12px;">🍪 CookieBanner</div><div style="font-size:12px;color:var(--muted);">Consent granular, preferencias, almacenado localmente</div></div>
+    <div class="card"><div class="card-title" style="font-size:12px;">🔞 AgeGate</div><div style="font-size:12px;color:var(--muted);">Modal obligatorio primera visita, log consent + IP</div></div>
+    <div class="card"><div class="card-title" style="font-size:12px;">🔔 NotificationCenter</div><div style="font-size:12px;color:var(--muted);">Real-time con Socket.io, tipos, acciones rápidas</div></div>
+    <div class="card"><div class="card-title" style="font-size:12px;">🔍 SearchBar</div><div style="font-size:12px;color:var(--muted);">Autocompletado, filtros, historial, sugerencias</div></div>
+    <div class="card"><div class="card-title" style="font-size:12px;">💳 SubscribeModal</div><div style="font-size:12px;color:var(--muted);">Planes, CCBill/Stripe embed, confirmación RGPD</div></div>
+    <div class="card"><div class="card-title" style="font-size:12px;">🚩 ReportModal</div><div style="font-size:12px;color:var(--muted);">Tipos de reporte, descripción, captcha, confirmación</div></div>
+    <div class="card"><div class="card-title" style="font-size:12px;">📊 AnalyticsWidget</div><div style="font-size:12px;color:var(--muted);">Vistas, ingresos, seguidores, retención — recharts</div></div>
+  </div>
+</section>
+
+<!-- =================== ADMIN =================== -->
+<section class="section" id="admin">
+  <div class="section-header">
+    <span class="section-num">14</span>
+    <h2 class="section-title">Paneles — Admin y Creator</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="big-card">
+      <div class="big-card-header">
+        <span class="stripe" style="background:var(--accent)"></span>
+        <span style="font-size:13px;font-weight:700;">Panel Admin</span>
+        <span class="tag tag-red" style="margin-left:auto;">Solo admins</span>
+      </div>
+      <div class="big-card-body">
+        <ul class="check-list">
+          <li><strong>Dashboard general:</strong> métricas en tiempo real, usuarios activos, ingresos, vídeos procesando</li>
+          <li><strong>Gestión usuarios:</strong> buscar, ver perfil completo, editar rol, suspender, banear, ver historial</li>
+          <li><strong>Cola de reportes:</strong> reportes pendientes ordenados por prioridad, acciones rápidas</li>
+          <li><strong>Moderación vídeos:</strong> vídeos marcados, revisión, takedown con un clic, notificar usuario</li>
+          <li><strong>Verificaciones creadores:</strong> cola de ID + selfie pendientes, aprobar/rechazar con notas</li>
+          <li><strong>Copyright y reclamaciones:</strong> claims activos, historial, apelaciones, log legal completo</li>
+          <li><strong>Strikes y sanciones:</strong> historial de strikes, emitir nuevos, ver apelaciones</li>
+          <li><strong>Audit log:</strong> todas las acciones de todos los admins, filtrable por fecha/usuario/acción</li>
+          <li><strong>Configuración:</strong> parámetros globales, límites, planes, integraciones</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="big-card">
+      <div class="big-card-header">
+        <span class="stripe" style="background:var(--accent3)"></span>
+        <span style="font-size:13px;font-weight:700;">Panel Creator</span>
+        <span class="tag tag-cyan" style="margin-left:auto;">Verificados</span>
+      </div>
+      <div class="big-card-body">
+        <ul class="check-list">
+          <li><strong>Dashboard:</strong> vistas totales, suscriptores, ingresos del mes, vídeos publicados</li>
+          <li><strong>Mis vídeos:</strong> listado, editar, cambiar visibilidad, estadísticas por vídeo</li>
+          <li><strong>Subir vídeo:</strong> wizard paso a paso con validaciones legales y de consentimiento</li>
+          <li><strong>Analytics:</strong> gráficas de vistas, retención, fuentes de tráfico, demografía</li>
+          <li><strong>Ingresos:</strong> balance wallet, historial transacciones, solicitar pago</li>
+          <li><strong>Seguidores:</strong> lista, crecimiento, más activos</li>
+          <li><strong>Configuración canal:</strong> nombre, descripción, avatar, banner, categorías</li>
+          <li><strong>Verificación:</strong> estado de verificación ID, documentos enviados</li>
+          <li><strong>Notificaciones:</strong> comentarios, nuevos seguidores, alertas de copyright</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCKER COMPOSE -->
+  <div class="big-card" style="margin-top:24px;">
+    <div class="big-card-header">
+      <span class="stripe" style="background:var(--accent2)"></span>
+      <span style="font-size:13px;font-weight:700;">Docker Compose — Infraestructura Completa</span>
+    </div>
+    <div class="big-card-body">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+          <span class="code-lang">YAML</span>
+        </div>
+<pre>
+<span class="key">version</span>: <span class="str">'3.9'</span>
+<span class="key">services</span>:
+  <span class="key">api</span>:
+    <span class="key">build</span>: ./server
+    <span class="key">environment</span>:
+      - DATABASE_URL=<span class="str">postgresql://user:pass@db:5432/streamforge</span>
+      - REDIS_URL=<span class="str">redis://redis:6379</span>
+      - JWT_SECRET=${JWT_SECRET}
+      - R2_ACCESS_KEY=${R2_ACCESS_KEY}
+    <span class="key">depends_on</span>: [db, redis]
+    <span class="key">restart</span>: unless-stopped
+
+  <span class="key">client</span>:
+    <span class="key">build</span>: ./client
+    <span class="key">environment</span>:
+      - NEXT_PUBLIC_API_URL=<span class="str">https://api.streamforge.es</span>
+    <span class="key">restart</span>: unless-stopped
+
+  <span class="key">worker</span>:
+    <span class="key">build</span>: ./server
+    <span class="key">command</span>: node src/workers/videoProcessor.js
+    <span class="key">deploy</span>:
+      <span class="key">replicas</span>: <span class="num">2</span>    <span class="cm"># múltiples workers paralelos</span>
+
+  <span class="key">db</span>:
+    <span class="key">image</span>: postgres:16-alpine
+    <span class="key">volumes</span>:
+      - postgres_data:/var/lib/postgresql/data
+    <span class="key">environment</span>:
+      - POSTGRES_DB=streamforge
+
+  <span class="key">redis</span>:
+    <span class="key">image</span>: redis:7-alpine
+    <span class="key">command</span>: redis-server --maxmemory 512mb
+
+  <span class="key">nginx</span>:
+    <span class="key">image</span>: nginx:alpine
+    <span class="key">volumes</span>:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    <span class="key">ports</span>:
+      - <span class="str">"80:80"</span>
+      - <span class="str">"443:443"</span>
+
+<span class="key">volumes</span>:
+  postgres_data:
+</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALERTS FINALES -->
+<div class="alert alert-success">
+  <span>✅</span>
+  <div><strong>Producción lista:</strong> Esta arquitectura está diseñada para escalar horizontalmente. Añade más workers de vídeo bajo demanda, usa read replicas en PostgreSQL para queries pesadas, y Cloudflare Cache para reducir carga en el servidor de streaming.</div>
+</div>
+
+<div class="alert alert-warn" style="margin-top:16px;">
+  <span>⚠</span>
+  <div><strong>Asesoría legal:</strong> Aunque este documento cubre los requisitos legales principales, se recomienda contratar a un abogado especializado en derecho digital español para revisar los documentos legales antes de lanzar la plataforma en producción.</div>
+</div>
+
+</div><!-- /container -->
+
+<footer>
+  <div class="brand">StreamForge</div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;">
+    <span class="tag tag-purple">Next.js 14</span>
+    <span class="tag tag-cyan">Node.js</span>
+    <span class="tag tag-gold">PostgreSQL</span>
+    <span class="tag tag-green">Docker</span>
+    <span class="tag tag-gray">RGPD ✓</span>
+    <span class="tag tag-gray">LSSI ✓</span>
+  </div>
+  <div class="copy">Arquitectura de Plataforma UGC · España/Europa · v1.0</div>
+</footer>
+
+</body>
+</html>
