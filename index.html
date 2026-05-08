@@ -1,334 +1,301 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VidXtra — Premium Adult Entertainment</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* ═══════════════════════════════════════
-       BASE
-    ═══════════════════════════════════════ */
+    /* ─── BASE ─── */
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
-    body { background: #09090b; color: #f4f4f5; font-family: sans-serif; }
+    body { background: #09090b; color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
     a { text-decoration: none; color: inherit; }
-    input, button, textarea { font-family: inherit; }
+    input, button, textarea, select { font-family: inherit; }
 
-    /* Pages */
+    /* ─── PAGES ─── */
     .page { display: none; min-height: 100vh; }
     .page.active { display: block; }
 
-    /* ═══════════════════════════════════════
-       SHARED UTILITIES
-    ═══════════════════════════════════════ */
-    .gradient-text {
-      background: linear-gradient(90deg,#ef4444,#f97316);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .gradient-text-orange {
-      background: linear-gradient(90deg,#f97316,#ef4444);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+    /* ─── GRADIENT TEXT ─── */
+    .g-red { background: linear-gradient(90deg,#ef4444,#f97316); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .g-orange { background: linear-gradient(90deg,#f97316,#ef4444); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 
-    /* ═══════════════════════════════════════
-       HOMEPAGE STYLES
-    ═══════════════════════════════════════ */
-    .dark-cinema-1 { background: linear-gradient(135deg,#1a0a1e 0%,#0d1a2e 50%,#0a1a10 100%); }
-    .dark-cinema-2 { background: linear-gradient(135deg,#1e1a0a 0%,#2e0d0d 50%,#1a0a1e 100%); }
-    .dark-cinema-3 { background: linear-gradient(135deg,#0a1a2e 0%,#1e0a1a 50%,#0d2e1a 100%); }
-    .dark-cinema-4 { background: linear-gradient(135deg,#1a0d0a 0%,#0a1e2e 50%,#1e1a0a 100%); }
-    .dark-cinema-5 { background: linear-gradient(135deg,#0d1a0a 0%,#1a0a2e 50%,#2e0d0d 100%); }
+    /* ─── CINEMA THUMBNAILS ─── */
+    .dc1 { background: linear-gradient(135deg,#1a0a1e,#0d1a2e,#0a1a10); }
+    .dc2 { background: linear-gradient(135deg,#1e1a0a,#2e0d0d,#1a0a1e); }
+    .dc3 { background: linear-gradient(135deg,#0a1a2e,#1e0a1a,#0d2e1a); }
+    .dc4 { background: linear-gradient(135deg,#1a0d0a,#0a1e2e,#1e1a0a); }
+    .dc5 { background: linear-gradient(135deg,#0d1a0a,#1a0a2e,#2e0d0d); }
 
-    .card-hover-fx { transition: transform .2s ease, box-shadow .2s ease; }
-    .card-hover-fx:hover { transform: scale(1.03); box-shadow: 0 8px 32px rgba(0,0,0,.5); }
+    /* ─── CARDS ─── */
+    .vcard { cursor:pointer; }
+    .vcard .thumb { position:relative; aspect-ratio:16/9; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,.06); transition:transform .2s,box-shadow .2s; }
+    .vcard:hover .thumb { transform:scale(1.03); box-shadow:0 8px 32px rgba(0,0,0,.6); }
+    .vcard .play-ov { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .2s; }
+    .vcard:hover .play-ov { opacity:1; }
+    .vcard:hover .vcard-title { color:#f87171; }
 
-    .play-btn-overlay { opacity: 0; transition: opacity .2s; }
-    .vcard:hover .play-btn-overlay { opacity: 1; }
-    .vcard:hover .vcard-title { color: #f87171; }
+    /* ─── SCROLL ROW ─── */
+    .scroll-row { display:flex; overflow-x:auto; gap:1rem; padding-bottom:1rem; scrollbar-width:thin; scrollbar-color:#3f3f46 transparent; }
+    .scroll-row::-webkit-scrollbar { height:5px; }
+    .scroll-row::-webkit-scrollbar-thumb { background:#3f3f46; border-radius:3px; }
 
-    .scroll-row {
-      display: flex; overflow-x: auto; gap: 1rem; padding-bottom: 1rem;
-      scrollbar-width: thin; scrollbar-color: #3f3f46 transparent;
-    }
-    .scroll-row::-webkit-scrollbar { height: 6px; }
-    .scroll-row::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+    /* ─── NAV TABS ─── */
+    .ntab { padding:.375rem .75rem; border-radius:.375rem; font-size:.875rem; font-weight:500; color:#a1a1aa; cursor:pointer; border:none; background:transparent; transition:color .15s,background .15s; }
+    .ntab:hover, .ntab.active { color:#fff; background:rgba(255,255,255,.08); }
 
-    .nav-tab {
-      padding: .375rem .75rem; border-radius: .375rem; font-size: .875rem;
-      font-weight: 500; color: #a1a1aa; cursor: pointer; border: none;
-      background: transparent; transition: color .15s, background .15s;
-    }
-    .nav-tab:hover { color: #fff; background: rgba(255,255,255,.05); }
-    .nav-tab.active { color: #fff; background: rgba(255,255,255,.1); }
+    /* ─── CAT BUTTONS ─── */
+    .cbt { display:inline-flex; align-items:center; gap:.4rem; padding:.4rem 1rem; border-radius:9999px; border:1px solid rgba(255,255,255,.1); background:rgba(39,39,42,.5); color:#d4d4d8; font-size:.875rem; cursor:pointer; white-space:nowrap; transition:background .15s,color .15s; }
+    .cbt:hover { background:rgba(255,255,255,.1); color:#fff; }
 
-    .cat-btn {
-      display: inline-flex; align-items: center; gap: .4rem;
-      padding: .4rem 1.1rem; border-radius: 9999px;
-      border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.5);
-      color: #d4d4d8; font-size: .875rem; cursor: pointer; white-space: nowrap;
-      transition: background .15s, color .15s;
-    }
-    .cat-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+    /* ─── HERO ─── */
+    .hero-bg { background-image:url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2574&auto=format&fit=crop'); background-size:cover; background-position:center; }
 
-    @keyframes pulseDot {
-      0%,100% { opacity:1; } 50% { opacity:.4; }
-    }
-    .live-dot { animation: pulseDot 1.5s infinite; }
+    /* ─── PLAYER ─── */
+    #player-wrap .pctrl { opacity:0; transition:opacity .25s; }
+    #player-wrap:hover .pctrl { opacity:1; }
+    .prog-track { position:relative; height:6px; background:rgba(255,255,255,.2); border-radius:3px; cursor:pointer; }
+    .prog-buf { position:absolute; left:0; top:0; height:100%; background:rgba(255,255,255,.35); border-radius:3px; width:45%; }
+    .prog-play { position:absolute; left:0; top:0; height:100%; background:#e11d48; border-radius:3px; width:28%; }
+    .prog-thumb { position:absolute; top:50%; right:-5px; width:12px; height:12px; background:#e11d48; border-radius:50%; transform:translateY(-50%); display:none; }
+    .prog-track:hover .prog-thumb { display:block; }
 
-    .hero-bg {
-      background-image: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=2574&auto=format&fit=crop');
-      background-size: cover; background-position: center;
-    }
+    .tag-b { display:inline-block; padding:3px 12px; border-radius:9999px; background:rgba(39,39,42,.5); color:#d4d4d8; font-size:.8125rem; cursor:pointer; border:1px solid transparent; transition:background .15s; }
+    .tag-b:hover { background:rgba(63,63,70,.8); }
 
-    /* ═══════════════════════════════════════
-       PLAYER STYLES
-    ═══════════════════════════════════════ */
-    #player-wrap .player-ctrl { opacity:0; transition: opacity .25s; }
-    #player-wrap:hover .player-ctrl { opacity:1; }
+    .rel-card { display:flex; gap:12px; padding:8px; border-radius:10px; cursor:pointer; transition:background .15s; }
+    .rel-card:hover { background:rgba(39,39,42,.5); }
+    .rel-card:hover .rel-title { color:#f87171; }
 
-    .progress-track { position:relative; height:6px; background:rgba(255,255,255,.2); border-radius:3px; cursor:pointer; }
-    .progress-buffered { position:absolute; left:0; top:0; height:100%; background:rgba(255,255,255,.35); border-radius:3px; width:45%; }
-    .progress-played { position:absolute; left:0; top:0; height:100%; background:#e11d48; border-radius:3px; width:28%; }
-    .progress-thumb { position:absolute; top:50%; right:-5px; width:12px; height:12px; background:#e11d48; border-radius:50%; transform:translateY(-50%); box-shadow:0 0 10px rgba(225,29,72,.8); display:none; }
-    .progress-track:hover .progress-thumb { display:block; }
+    /* ─── AGE GATE ─── */
+    .ag-blur-grid { position:fixed; inset:0; display:grid; grid-template-columns:repeat(4,1fr); gap:12px; padding:12px; opacity:.35; filter:blur(10px); transform:scale(1.05); pointer-events:none; z-index:0; }
+    .ag-overlay { position:fixed; inset:0; background:linear-gradient(to bottom,rgba(9,9,11,.8),rgba(9,9,11,.95)); pointer-events:none; z-index:1; }
+    .ag-card { position:relative; z-index:10; width:100%; max-width:640px; background:rgba(24,24,27,.97); border:1px solid #27272a; border-radius:1.25rem; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,.8); backdrop-filter:blur(24px); }
+    .ag-accent { height:4px; background:linear-gradient(to right,#f97316,#dc2626); }
+    .ag-enter { flex:1; height:52px; font-size:.9375rem; font-weight:600; color:#fff; background:#ea580c; border:none; cursor:pointer; border-radius:8px; box-shadow:0 0 20px rgba(234,88,12,.3); transition:background .15s,box-shadow .15s; }
+    .ag-enter:hover { background:#c2410c; box-shadow:0 0 28px rgba(234,88,12,.5); }
+    .ag-exit { flex:1; height:52px; font-size:.9375rem; font-weight:600; color:#d4d4d8; background:transparent; border:1px solid #3f3f46; cursor:pointer; border-radius:8px; transition:background .15s,color .15s; }
+    .ag-exit:hover { background:#27272a; color:#fff; }
+    .fl { color:#71717a; font-size:.75rem; text-decoration:none; transition:color .15s; }
+    .fl:hover { color:#d4d4d8; }
 
-    .tag-badge {
-      display:inline-block; padding:3px 12px; border-radius:9999px;
-      background:rgba(39,39,42,.5); color:#d4d4d8; font-size:.8125rem;
-      cursor:pointer; border:1px solid transparent; transition:background .15s;
-    }
-    .tag-badge:hover { background:rgba(63,63,70,.8); color:#fff; }
+    /* ─── MODAL ─── */
+    .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(8px); z-index:100; display:none; align-items:center; justify-content:center; padding:1rem; }
+    .modal-bg.open { display:flex; }
+    .modal-box { background:#18181b; border:1px solid #27272a; border-radius:1rem; width:100%; max-width:440px; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,.9); animation:slideUp .25s ease; }
+    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
-    .related-card { display:flex; gap:12px; padding:8px; border-radius:10px; cursor:pointer; transition:background .15s; }
-    .related-card:hover { background:rgba(39,39,42,.5); }
-    .related-card:hover .rel-title { color:#f87171; }
+    .modal-input { width:100%; background:#09090b; border:1px solid #3f3f46; color:#f4f4f5; border-radius:8px; padding:.75rem 1rem; font-size:.9375rem; outline:none; transition:border-color .15s; }
+    .modal-input:focus { border-color:#ea580c; }
+    .modal-input::placeholder { color:#52525b; }
+    .modal-btn-main { width:100%; height:48px; background:linear-gradient(90deg,#dc2626,#ea580c); border:none; color:#fff; font-size:1rem; font-weight:700; cursor:pointer; border-radius:8px; transition:opacity .15s; }
+    .modal-btn-main:hover { opacity:.9; }
+    .modal-btn-ghost { background:none; border:none; color:#a1a1aa; font-size:.875rem; cursor:pointer; transition:color .15s; padding:0; }
+    .modal-btn-ghost:hover { color:#fff; }
+    .modal-btn-ghost span { color:#ea580c; font-weight:600; }
+    .modal-divider { display:flex; align-items:center; gap:1rem; color:#52525b; font-size:.8125rem; margin:.5rem 0; }
+    .modal-divider::before, .modal-divider::after { content:''; flex:1; height:1px; background:#27272a; }
 
-    .comment-btn { display:flex; align-items:center; gap:6px; font-size:.75rem; color:#71717a; cursor:pointer; border:none; background:none; transition:color .15s; }
-    .comment-btn:hover { color:#d4d4d8; }
+    /* ─── TOAST ─── */
+    #toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(80px); background:#18181b; border:1px solid #3f3f46; color:#f4f4f5; padding:.875rem 1.5rem; border-radius:9999px; font-size:.9375rem; font-weight:500; z-index:200; transition:transform .35s ease; pointer-events:none; white-space:nowrap; }
+    #toast.show { transform:translateX(-50%) translateY(0); }
 
-    /* ═══════════════════════════════════════
-       AGE GATE STYLES
-    ═══════════════════════════════════════ */
-    .bg-grid-ag {
-      position:fixed; inset:0; display:grid; grid-template-columns:repeat(4,1fr);
-      gap:12px; padding:12px; opacity:.35; filter:blur(10px);
-      transform:scale(1.05); pointer-events:none;
-    }
-    .bg-card-ag { display:flex; flex-direction:column; gap:10px; }
-    .bg-thumb-ag { width:100%; aspect-ratio:16/9; border-radius:8px; }
+    /* ─── LANG TOGGLE ─── */
+    .lang-btn { background:rgba(39,39,42,.7); border:1px solid rgba(255,255,255,.1); color:#d4d4d8; font-size:.75rem; font-weight:700; letter-spacing:.08em; cursor:pointer; padding:5px 12px; border-radius:6px; transition:background .15s,color .15s; }
+    .lang-btn:hover { background:rgba(63,63,70,.9); color:#fff; }
+    .lang-btn.active { background:rgba(220,38,38,.15); border-color:rgba(220,38,38,.35); color:#f87171; }
 
-    .depth-ov { position:fixed; inset:0; background:linear-gradient(to bottom,rgba(9,9,11,.75),rgba(9,9,11,.92),#09090b); pointer-events:none; }
+    /* ─── FOOTER LINK ─── */
+    .flink { color:#52525b; font-size:.75rem; text-decoration:none; transition:color .15s; }
+    .flink:hover { color:#d4d4d8; }
 
-    .gate-card {
-      position:relative; z-index:10; width:100%; max-width:640px;
-      background:rgba(24,24,27,.95); border:1px solid #27272a;
-      border-radius:1.25rem; overflow:hidden;
-      box-shadow:0 25px 60px rgba(0,0,0,.7); backdrop-filter:blur(20px);
-    }
-    .accent-bar { height:4px; background:linear-gradient(to right,#f97316,#dc2626); }
+    @keyframes pulseDot { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+    .live-d { animation:pulseDot 1.5s infinite; }
 
-    .enter-btn {
-      flex:1; height:56px; font-size:1rem; font-weight:600; color:#fff;
-      background:#ea580c; border:none; cursor:pointer; border-radius:8px;
-      transition:background .15s, box-shadow .15s;
-      box-shadow:0 0 20px rgba(234,88,12,.3);
-    }
-    .enter-btn:hover { background:#c2410c; box-shadow:0 0 28px rgba(234,88,12,.5); }
+    .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
-    .exit-btn {
-      flex:1; height:56px; font-size:1rem; font-weight:600; color:#d4d4d8;
-      background:transparent; border:1px solid #3f3f46; cursor:pointer;
-      border-radius:8px; transition:background .15s, color .15s;
-    }
-    .exit-btn:hover { background:#27272a; color:#fff; }
-
-    .footer-link { color:#71717a; font-size:.75rem; text-decoration:none; transition:color .15s; }
-    .footer-link:hover { color:#d4d4d8; }
-
-    input[type="checkbox"] { width:18px; height:18px; accent-color:#ea580c; cursor:pointer; margin-top:2px; flex-shrink:0; }
-
-    /* ═══════════════════════════════════════
-       AVATAR COLORS
-    ═══════════════════════════════════════ */
-    .av-1 { background:#3f3f46; }
-    .av-2 { background:#27272a; }
-    .av-3 { background:#18181b; }
-    .av-4 { background:#1c1917; }
-    .av-5 { background:#1e1b4b; }
+    /* ─── AVATAR COLORS ─── */
+    .av1{background:#3f3f46;} .av2{background:#27272a;} .av3{background:#18181b;} .av4{background:#1c1917;} .av5{background:#1e1b4b;}
   </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════════════════
-     PAGE 1 — AGE GATE
-════════════════════════════════════════════════════════════ -->
-<div id="page-agegate" class="page active" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem;position:relative;overflow:hidden;">
+<!-- ══════════════════════════════════════════════════════════
+     AGE GATE — PAGE
+══════════════════════════════════════════════════════════ -->
+<div id="page-ag" class="page active" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem;position:relative;overflow:hidden;">
 
   <!-- blurred bg -->
-  <div class="bg-grid-ag">
-    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-1"></div><div style="height:14px;border-radius:4px;background:#27272a;width:80%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:55%;"></div></div>
-    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-2"></div><div style="height:14px;border-radius:4px;background:#27272a;width:75%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:50%;"></div></div>
-    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-3"></div><div style="height:14px;border-radius:4px;background:#27272a;width:85%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:60%;"></div></div>
-    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-4"></div><div style="height:14px;border-radius:4px;background:#27272a;width:70%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:45%;"></div></div>
-    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-5"></div><div style="height:14px;border-radius:4px;background:#27272a;width:80%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:55%;"></div></div>
-    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-1"></div><div style="height:14px;border-radius:4px;background:#27272a;width:65%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:40%;"></div></div>
-    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-2"></div><div style="height:14px;border-radius:4px;background:#27272a;width:90%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:65%;"></div></div>
-    <div class="bg-card-ag"><div class="bg-thumb-ag dark-cinema-3"></div><div style="height:14px;border-radius:4px;background:#27272a;width:75%;"></div><div style="height:10px;border-radius:4px;background:rgba(39,39,42,.5);width:50%;"></div></div>
+  <div class="ag-blur-grid">
+    <div style="display:flex;flex-direction:column;gap:10px;"><div class="dc1" style="width:100%;aspect-ratio:16/9;border-radius:8px;"></div><div style="height:14px;border-radius:4px;background:#27272a;width:80%;"></div><div style="height:10px;border-radius:4px;background:#1f1f23;width:55%;"></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px;"><div class="dc2" style="width:100%;aspect-ratio:16/9;border-radius:8px;"></div><div style="height:14px;border-radius:4px;background:#27272a;width:75%;"></div><div style="height:10px;border-radius:4px;background:#1f1f23;width:50%;"></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px;"><div class="dc3" style="width:100%;aspect-ratio:16/9;border-radius:8px;"></div><div style="height:14px;border-radius:4px;background:#27272a;width:85%;"></div><div style="height:10px;border-radius:4px;background:#1f1f23;width:60%;"></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px;"><div class="dc4" style="width:100%;aspect-ratio:16/9;border-radius:8px;"></div><div style="height:14px;border-radius:4px;background:#27272a;width:70%;"></div><div style="height:10px;border-radius:4px;background:#1f1f23;width:45%;"></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px;"><div class="dc5" style="width:100%;aspect-ratio:16/9;border-radius:8px;"></div><div style="height:14px;border-radius:4px;background:#27272a;width:80%;"></div><div style="height:10px;border-radius:4px;background:#1f1f23;width:55%;"></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px;"><div class="dc1" style="width:100%;aspect-ratio:16/9;border-radius:8px;"></div><div style="height:14px;border-radius:4px;background:#27272a;width:65%;"></div><div style="height:10px;border-radius:4px;background:#1f1f23;width:40%;"></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px;"><div class="dc2" style="width:100%;aspect-ratio:16/9;border-radius:8px;"></div><div style="height:14px;border-radius:4px;background:#27272a;width:90%;"></div><div style="height:10px;border-radius:4px;background:#1f1f23;width:65%;"></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px;"><div class="dc3" style="width:100%;aspect-ratio:16/9;border-radius:8px;"></div><div style="height:14px;border-radius:4px;background:#27272a;width:72%;"></div><div style="height:10px;border-radius:4px;background:#1f1f23;width:48%;"></div></div>
   </div>
-  <div class="depth-ov"></div>
+  <div class="ag-overlay"></div>
 
-  <div class="gate-card">
-    <div class="accent-bar"></div>
-    <div style="padding:3rem 2.5rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:1.5rem;">
+  <div class="ag-card">
+    <div class="ag-accent"></div>
+    <div style="padding:2.5rem 2.25rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:1.375rem;">
+
+      <!-- Lang toggle -->
+      <div style="display:flex;gap:6px;align-self:flex-end;">
+        <button class="lang-btn active" id="ag-lang-es" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" id="ag-lang-en" onclick="setLang('en')">EN</button>
+      </div>
 
       <!-- Logo -->
       <div style="display:flex;align-items:center;gap:12px;">
-        <h1 style="font-size:clamp(2.25rem,6vw,3rem);font-weight:900;letter-spacing:-.04em;color:#fff;margin:0;">
-          Vid<span class="gradient-text-orange">Xtra</span>
+        <h1 style="font-size:clamp(2rem,6vw,2.75rem);font-weight:900;letter-spacing:-.04em;color:#fff;margin:0;">
+          Vid<span class="g-orange">Xtra</span>
         </h1>
-        <div style="background:#27272a;border:1px solid #3f3f46;border-radius:6px;padding:4px 10px;">
-          <span style="font-size:.8125rem;font-weight:700;color:#d4d4d8;">18+</span>
-        </div>
+        <div style="background:#27272a;border:1px solid #3f3f46;border-radius:6px;padding:4px 10px;"><span style="font-size:.8125rem;font-weight:700;color:#d4d4d8;">18+</span></div>
       </div>
 
-      <!-- Icon -->
-      <div style="width:56px;height:56px;border-radius:50%;background:rgba(234,88,12,.12);border:1px solid rgba(234,88,12,.25);display:flex;align-items:center;justify-content:center;">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-          <line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="#ea580c"/>
-        </svg>
+      <!-- Warning icon -->
+      <div style="width:54px;height:54px;border-radius:50%;background:rgba(234,88,12,.12);border:1px solid rgba(234,88,12,.3);display:flex;align-items:center;justify-content:center;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="#ea580c"/></svg>
       </div>
 
       <!-- Headline -->
       <div>
-        <h2 style="font-size:clamp(1.25rem,3.5vw,1.875rem);font-weight:700;color:#f4f4f5;margin:0 0 .75rem;line-height:1.25;">
-          You must be 18 years or older to enter
+        <h2 data-i18n="ag_title" style="font-size:clamp(1.2rem,3.5vw,1.75rem);font-weight:700;color:#f4f4f5;margin:0 0 .75rem;line-height:1.25;">
+          Debes tener 18 años o más para entrar
         </h2>
-        <p style="color:#a1a1aa;max-width:480px;margin:0 auto;line-height:1.65;font-size:.9375rem;">
-          This website contains adult material. By entering, you confirm that you are of legal age in your jurisdiction to view sexually explicit content and that accessing such material does not violate any local laws.
+        <p data-i18n="ag_subtitle" style="color:#a1a1aa;max-width:460px;margin:0 auto;line-height:1.65;font-size:.9rem;">
+          Este sitio contiene material para adultos. Al entrar confirmas que tienes la edad legal en tu país para ver contenido explícito y que acceder no viola ninguna ley local.
         </p>
       </div>
 
-      <!-- CTAs -->
+      <!-- Buttons -->
       <div style="display:flex;gap:12px;width:100%;max-width:420px;flex-wrap:wrap;">
-        <button class="enter-btn" onclick="enterSite()">✓ &nbsp;I am 18 or older — Enter</button>
-        <button class="exit-btn" onclick="window.location.href='https://www.google.com'">I am under 18 — Exit</button>
+        <button class="ag-enter" onclick="confirmAge()" data-i18n="ag_enter">✓ &nbsp;Tengo 18 o más — Entrar</button>
+        <button class="ag-exit" onclick="window.location.href='https://www.google.com'" data-i18n="ag_exit">Tengo menos de 18 — Salir</button>
       </div>
 
-      <!-- Checkbox -->
-      <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(9,9,11,.5);border:1px solid rgba(63,63,70,.5);border-radius:8px;padding:1rem;width:100%;max-width:420px;text-align:left;">
-        <input type="checkbox" id="remember" />
-        <div>
-          <label for="remember" style="font-size:.875rem;font-weight:500;color:#e4e4e7;cursor:pointer;display:block;margin-bottom:4px;">Remember my age</label>
-          <p style="font-size:.75rem;color:#71717a;margin:0;line-height:1.5;">Uses a cookie to save your preference for 30 days. Do not check on a shared device.</p>
-        </div>
-      </div>
-
-      <!-- Legal -->
-      <div style="background:rgba(9,9,11,.8);border:1px solid rgba(63,63,70,.8);border-radius:8px;padding:1.25rem;width:100%;text-align:left;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <span style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#d4d4d8;">Legal Compliance</span>
-        </div>
-        <p style="font-size:.6875rem;color:#71717a;line-height:1.65;margin:0 0 8px;">
-          All models appearing on this website were 18 years or older at the time of production. This site operates in strict compliance with 18 U.S.C. § 2257 Record-Keeping Requirements Compliance Statement.
+      <!-- Register CTA -->
+      <div style="width:100%;max-width:420px;background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.18);border-radius:10px;padding:1rem;text-align:left;">
+        <p data-i18n="ag_reg_cta" style="font-size:.875rem;color:#d4d4d8;margin:0 0 .75rem;line-height:1.5;">
+          ¿Ya tienes cuenta? <strong>Inicia sesión</strong> para entrar directamente y no ver esta pantalla nunca más.
         </p>
-        <p style="font-size:.6875rem;color:#71717a;line-height:1.65;margin:0;">
-          By accessing this site, you agree to our Terms of Service and acknowledge our Privacy Policy. This platform complies with GDPR &amp; LSSI (Spain) and prohibits illegal material.
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="openModal('login')" style="flex:1;height:38px;background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3);color:#f87171;font-size:.875rem;font-weight:600;cursor:pointer;border-radius:7px;transition:background .15s;" onmouseenter="this.style.background='rgba(220,38,38,.25)'" onmouseleave="this.style.background='rgba(220,38,38,.15)'" data-i18n="ag_login_btn">Iniciar sesión</button>
+          <button onclick="openModal('register')" style="flex:1;height:38px;background:rgba(234,88,12,.15);border:1px solid rgba(234,88,12,.3);color:#fb923c;font-size:.875rem;font-weight:600;cursor:pointer;border-radius:7px;transition:background .15s;" onmouseenter="this.style.background='rgba(234,88,12,.25)'" onmouseleave="this.style.background='rgba(234,88,12,.15)'" data-i18n="ag_reg_btn">Crear cuenta gratis</button>
+        </div>
+      </div>
+
+      <!-- Checkbox remember -->
+      <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(9,9,11,.5);border:1px solid rgba(63,63,70,.5);border-radius:8px;padding:.875rem;width:100%;max-width:420px;text-align:left;">
+        <input type="checkbox" id="ag-remember" style="width:17px;height:17px;accent-color:#ea580c;cursor:pointer;margin-top:2px;flex-shrink:0;" />
+        <div>
+          <label for="ag-remember" style="font-size:.875rem;font-weight:500;color:#e4e4e7;cursor:pointer;display:block;margin-bottom:4px;" data-i18n="ag_remember_label">Recordar mi edad</label>
+          <p data-i18n="ag_remember_desc" style="font-size:.725rem;color:#71717a;margin:0;line-height:1.5;">Guarda tu preferencia en este navegador. No actives esto en un dispositivo compartido.</p>
+        </div>
+      </div>
+
+      <!-- Legal block -->
+      <div style="background:rgba(9,9,11,.8);border:1px solid rgba(63,63,70,.6);border-radius:8px;padding:1.125rem;width:100%;text-align:left;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span style="font-size:.725rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#d4d4d8;" data-i18n="ag_legal_title">Cumplimiento Legal</span>
+        </div>
+        <p data-i18n="ag_legal_text" style="font-size:.6875rem;color:#71717a;line-height:1.65;margin:0;">
+          Todos los modelos tenían 18 años o más en el momento de la producción. Operamos cumpliendo con 18 U.S.C. § 2257, GDPR y la LSSI de España. El material ilegal está estrictamente prohibido. Al acceder aceptas nuestros Términos de Servicio y Política de Privacidad.
         </p>
       </div>
     </div>
 
-    <!-- Footer -->
-    <div style="background:rgba(9,9,11,.8);border-top:1px solid #27272a;padding:1.25rem 2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;">
-      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;">
-        <a href="#" class="footer-link">Terms of Service</a>
-        <a href="#" class="footer-link">Privacy Policy</a>
-        <a href="#" class="footer-link">DMCA</a>
-        <a href="#" class="footer-link">2257 Statement</a>
-        <a href="#" class="footer-link">Cookie Policy</a>
-      </div>
-      <button style="display:flex;align-items:center;gap:6px;background:none;border:none;color:#71717a;font-size:.75rem;cursor:pointer;" onmouseenter="this.style.color='#d4d4d8'" onmouseleave="this.style.color='#71717a'">
-        🌐 Not your country? <span style="text-decoration:underline;">Change region</span>
-      </button>
+    <!-- Card footer -->
+    <div style="background:rgba(9,9,11,.9);border-top:1px solid #27272a;padding:1rem 2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1rem;">
+      <a href="#" class="fl">Terms of Service</a>
+      <a href="#" class="fl">Privacy Policy</a>
+      <a href="#" class="fl">DMCA</a>
+      <a href="#" class="fl">2257 Statement</a>
+      <a href="#" class="fl">Cookie Policy</a>
     </div>
   </div>
-</div><!-- /age gate -->
+</div>
 
-
-<!-- ════════════════════════════════════════════════════════════
-     PAGE 2 — HOMEPAGE
-════════════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════════════
+     HOMEPAGE — PAGE
+══════════════════════════════════════════════════════════ -->
 <div id="page-home" class="page">
 
   <!-- NAV -->
-  <nav style="position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(9,9,11,.85);backdrop-filter:blur(20px);">
-    <div style="max-width:1600px;margin:0 auto;padding:0 1.5rem;height:64px;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
-      <div style="display:flex;align-items:center;gap:1.5rem;">
-        <a href="#" style="display:flex;align-items:center;gap:8px;" onclick="return false;">
-          <div style="background:linear-gradient(135deg,#dc2626,#ea580c);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(220,38,38,.25);">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+  <nav style="position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(9,9,11,.88);backdrop-filter:blur(20px);">
+    <div style="max-width:1600px;margin:0 auto;padding:0 1.25rem;height:64px;display:flex;align-items:center;justify-content:space-between;gap:.75rem;">
+
+      <!-- Logo + tabs -->
+      <div style="display:flex;align-items:center;gap:1.25rem;">
+        <a href="#" onclick="return false;" style="display:flex;align-items:center;gap:8px;">
+          <div style="background:linear-gradient(135deg,#dc2626,#ea580c);width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(220,38,38,.25);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
           </div>
-          <span style="font-size:1.25rem;font-weight:900;letter-spacing:-.03em;color:#fff;">Vid<span class="gradient-text">Xtra</span></span>
+          <span style="font-size:1.2rem;font-weight:900;letter-spacing:-.03em;color:#fff;">Vid<span class="g-red">Xtra</span></span>
         </a>
-        <div style="display:none;" id="nav-tabs-home" class="lg:flex" style="display:flex;align-items:center;gap:4px;">
-          <button class="nav-tab active">Home</button>
-          <button class="nav-tab">Trending</button>
-          <button class="nav-tab">New</button>
-          <button class="nav-tab">Categories</button>
-          <button class="nav-tab" style="color:#f97316;">
-            <span class="live-dot" style="width:6px;height:6px;border-radius:50%;background:#f97316;display:inline-block;margin-right:4px;vertical-align:middle;"></span>Live
+        <div style="display:flex;align-items:center;gap:2px;">
+          <button class="ntab active" data-i18n="nav_home">Inicio</button>
+          <button class="ntab" data-i18n="nav_trending">Tendencias</button>
+          <button class="ntab" data-i18n="nav_new">Nuevo</button>
+          <button class="ntab" data-i18n="nav_cats">Categorías</button>
+          <button class="ntab" style="color:#f97316;">
+            <span class="live-d" style="width:6px;height:6px;border-radius:50%;background:#f97316;display:inline-block;margin-right:4px;vertical-align:middle;"></span>Live
           </button>
         </div>
       </div>
-      <div style="flex:1;max-width:480px;padding:0 1rem;position:relative;">
-        <svg style="position:absolute;left:1.75rem;top:50%;transform:translateY(-50%);color:#71717a;pointer-events:none;" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" placeholder="Search videos, creators, categories…" style="width:100%;background:rgba(39,39,42,.5);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:9999px;padding:.5rem 1rem .5rem 2.25rem;font-size:.875rem;outline:none;" onfocus="this.style.borderColor='rgba(239,68,68,.5)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" />
+
+      <!-- Search -->
+      <div style="flex:1;max-width:440px;padding:0 .75rem;position:relative;">
+        <svg style="position:absolute;left:1.5rem;top:50%;transform:translateY(-50%);pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input data-i18n-ph="search_ph" type="text" placeholder="Buscar vídeos, creadores, categorías…" style="width:100%;background:rgba(39,39,42,.5);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:9999px;padding:.5rem 1rem .5rem 2.25rem;font-size:.875rem;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='rgba(239,68,68,.5)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'" />
       </div>
-      <div style="display:flex;align-items:center;gap:.75rem;">
+
+      <!-- Right actions -->
+      <div style="display:flex;align-items:center;gap:.5rem;">
+        <!-- Lang toggle -->
+        <button class="lang-btn active" id="home-lang-es" onclick="setLang('es')">ES</button>
+        <button class="lang-btn" id="home-lang-en" onclick="setLang('en')">EN</button>
+
+        <!-- Notifications -->
         <button style="background:none;border:none;color:#a1a1aa;cursor:pointer;padding:6px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         </button>
-        <button style="background:none;border:none;color:#a1a1aa;cursor:pointer;padding:.375rem .75rem;font-size:.875rem;color:#d4d4d8;">Log In</button>
-        <button style="background:linear-gradient(90deg,#dc2626,#ea580c);border:none;color:#fff;font-size:.875rem;font-weight:600;cursor:pointer;padding:.5rem 1.25rem;border-radius:9999px;box-shadow:0 4px 16px rgba(220,38,38,.25);">Sign Up</button>
+
+        <!-- Auth buttons or user avatar -->
+        <div id="nav-auth-area" style="display:flex;align-items:center;gap:.5rem;border-left:1px solid rgba(255,255,255,.1);padding-left:.75rem;"></div>
       </div>
     </div>
   </nav>
 
   <!-- HERO -->
-  <section style="position:relative;height:60vh;min-height:400px;max-height:580px;overflow:hidden;display:flex;align-items:flex-end;">
+  <section style="position:relative;height:58vh;min-height:380px;max-height:560px;overflow:hidden;display:flex;align-items:flex-end;">
     <div style="position:absolute;inset:0;">
       <div class="hero-bg" style="width:100%;height:100%;opacity:.4;mix-blend-mode:luminosity;"></div>
       <div style="position:absolute;inset:0;background:linear-gradient(to top,#09090b,rgba(9,9,11,.6),transparent);"></div>
-      <div style="position:absolute;inset:0;background:linear-gradient(to right,#09090b,rgba(9,9,11,.8),transparent);"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to right,#09090b,rgba(9,9,11,.75),transparent);"></div>
     </div>
     <div style="position:relative;z-index:1;max-width:1600px;margin:0 auto;width:100%;padding:0 1.5rem 3rem;display:flex;flex-direction:column;gap:1rem;">
-      <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;padding:4px 12px;border-radius:9999px;font-size:.75rem;font-weight:600;width:fit-content;">
-        🔥 #1 Trending This Week
+      <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;padding:4px 12px;border-radius:9999px;font-size:.75rem;font-weight:600;width:fit-content;">
+        🔥 <span data-i18n="hero_badge">#1 Tendencia Esta Semana</span>
       </span>
-      <h1 style="font-size:clamp(1.8rem,5vw,3.5rem);font-weight:900;color:#fff;line-height:1.1;letter-spacing:-.03em;margin:0;max-width:680px;">
-        The Velvet Room:<br/><span class="gradient-text">Exclusive Premiere</span>
+      <h1 style="font-size:clamp(1.8rem,5vw,3.375rem);font-weight:900;color:#fff;line-height:1.1;letter-spacing:-.03em;margin:0;max-width:660px;">
+        The Velvet Room:<br/><span class="g-red" data-i18n="hero_sub">Estreno Exclusivo</span>
       </h1>
-      <p style="color:#a1a1aa;font-size:1.1rem;max-width:560px;font-weight:300;margin:.25rem 0 .75rem;">
-        A cinematic masterpiece featuring the top creators of the year in stunning 4K HDR.
+      <p data-i18n="hero_desc" style="color:#a1a1aa;font-size:1.05rem;max-width:540px;font-weight:300;margin:.25rem 0 .75rem;">
+        Una obra maestra cinematográfica con los mejores creadores del año en impresionante 4K HDR.
       </p>
       <div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:center;">
-        <button onclick="goToPlayer()" style="background:#fff;color:#000;border:none;border-radius:9999px;padding:.875rem 2rem;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 0 40px rgba(255,255,255,.25);transition:transform .15s;" onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform='scale(1)'">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="black"><polygon points="5,3 19,12 5,21"/></svg> Watch Now
+        <button onclick="goToPlayer()" style="background:#fff;color:#000;border:none;border-radius:9999px;padding:.8rem 2rem;font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 0 40px rgba(255,255,255,.2);transition:transform .15s;" onmouseenter="this.style.transform='scale(1.04)'" onmouseleave="this.style.transform='scale(1)'">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="black"><polygon points="5,3 19,12 5,21"/></svg>
+          <span data-i18n="hero_watch">Ver Ahora</span>
         </button>
-        <button style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:9999px;padding:.875rem 2rem;font-size:1rem;font-weight:500;cursor:pointer;backdrop-filter:blur(8px);">
-          + Add to List
+        <button style="background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:9999px;padding:.8rem 2rem;font-size:1rem;font-weight:500;cursor:pointer;backdrop-filter:blur(8px);">
+          + <span data-i18n="hero_list">Mi Lista</span>
         </button>
       </div>
     </div>
@@ -336,17 +303,15 @@
 
   <!-- CATEGORY BAR -->
   <div style="border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);position:sticky;top:64px;z-index:40;background:rgba(9,9,11,.5);backdrop-filter:blur(12px);">
-    <div class="scroll-row" style="max-width:1600px;margin:0 auto;padding:.875rem 1.5rem;">
-      <button class="cat-btn">🔥 Trending</button>
-      <button class="cat-btn">✨ New Releases</button>
-      <button class="cat-btn">👁 Most Viewed</button>
-      <button class="cat-btn">⭐ Top Rated</button>
-      <button class="cat-btn" style="color:#f87171;border-color:rgba(239,68,68,.3);">
-        <span class="live-dot" style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;"></span>Live
-      </button>
-      <button class="cat-btn">🎥 Amateur</button>
-      <button class="cat-btn">👑 Professional</button>
-      <button class="cat-btn">🤖 AI Content</button>
+    <div class="scroll-row" style="max-width:1600px;margin:0 auto;padding:.8rem 1.5rem;">
+      <button class="cbt">🔥 <span data-i18n="cat_trending">Tendencias</span></button>
+      <button class="cbt">✨ <span data-i18n="cat_new">Nuevos</span></button>
+      <button class="cbt">👁 <span data-i18n="cat_viewed">Más Vistos</span></button>
+      <button class="cbt">⭐ <span data-i18n="cat_rated">Mejor Valorados</span></button>
+      <button class="cbt" style="color:#f87171;border-color:rgba(239,68,68,.3);"><span class="live-d" style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;margin-right:2px;"></span>Live</button>
+      <button class="cbt">🎥 <span data-i18n="cat_amateur">Amateur</span></button>
+      <button class="cbt">👑 <span data-i18n="cat_pro">Profesional</span></button>
+      <button class="cbt">🤖 <span data-i18n="cat_ai">Contenido IA</span></button>
     </div>
   </div>
 
@@ -356,106 +321,101 @@
     <!-- TRENDING ROW -->
     <section>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-        <h2 style="font-size:1.375rem;font-weight:700;color:#fff;margin:0;display:flex;align-items:center;gap:8px;">🔥 Trending Now</h2>
-        <button style="background:none;border:none;color:#a1a1aa;cursor:pointer;font-size:.875rem;" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='#a1a1aa'">See All →</button>
+        <h2 style="font-size:1.375rem;font-weight:700;color:#fff;margin:0;">🔥 <span data-i18n="section_trending">Tendencias</span></h2>
+        <button style="background:none;border:none;color:#a1a1aa;cursor:pointer;font-size:.875rem;" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='#a1a1aa'" data-i18n="see_all">Ver todo →</button>
       </div>
       <div class="scroll-row" id="trending-row"></div>
     </section>
 
     <!-- CREATORS -->
-    <section style="background:linear-gradient(90deg,rgba(39,39,42,.5),rgba(9,9,11,1));border:1px solid rgba(255,255,255,.05);border-radius:1rem;padding:2rem;position:relative;overflow:hidden;">
-      <div style="position:absolute;top:0;right:0;padding:2rem;opacity:.06;pointer-events:none;font-size:12rem;line-height:1;">👑</div>
-      <h2 style="font-size:1.375rem;font-weight:700;color:#fff;margin:0 0 1.75rem;display:flex;align-items:center;gap:8px;">👑 Featured Creators</h2>
-      <div id="creators-row" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:1.25rem;"></div>
+    <section style="background:linear-gradient(90deg,rgba(39,39,42,.5),rgba(9,9,11,1));border:1px solid rgba(255,255,255,.05);border-radius:1rem;padding:1.75rem;position:relative;overflow:hidden;">
+      <h2 style="font-size:1.375rem;font-weight:700;color:#fff;margin:0 0 1.75rem;">👑 <span data-i18n="section_creators">Creadores Destacados</span></h2>
+      <div id="creators-row" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:1.25rem;"></div>
     </section>
 
     <!-- VIDEO GRID -->
     <section>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:1rem;border-bottom:1px solid rgba(255,255,255,.08);">
-        <h2 style="font-size:1.375rem;font-weight:700;color:#fff;margin:0;">Recommended For You</h2>
-        <button style="display:flex;align-items:center;gap:6px;background:none;border:1px solid rgba(255,255,255,.1);color:#a1a1aa;cursor:pointer;padding:6px 14px;border-radius:6px;font-size:.875rem;">
-          ☰ Filter
-        </button>
+        <h2 style="font-size:1.375rem;font-weight:700;color:#fff;margin:0;" data-i18n="section_rec">Recomendados Para Ti</h2>
+        <button style="display:flex;align-items:center;gap:6px;background:none;border:1px solid rgba(255,255,255,.1);color:#a1a1aa;cursor:pointer;padding:6px 14px;border-radius:6px;font-size:.875rem;" data-i18n="filter_btn">☰ Filtrar</button>
       </div>
-      <div id="video-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem 1rem;"></div>
+      <div id="video-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:1.5rem 1rem;"></div>
       <div style="margin-top:2.5rem;display:flex;justify-content:center;">
-        <button style="background:rgba(39,39,42,.5);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;padding:.875rem 2.5rem;border-radius:9999px;font-size:1rem;font-weight:600;" onmouseenter="this.style.background='rgba(63,63,70,.8)'" onmouseleave="this.style.background='rgba(39,39,42,.5)'">
-          Load More Videos
-        </button>
+        <button style="background:rgba(39,39,42,.5);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;padding:.875rem 2.5rem;border-radius:9999px;font-size:1rem;font-weight:600;" onmouseenter="this.style.background='rgba(63,63,70,.8)'" onmouseleave="this.style.background='rgba(39,39,42,.5)'" data-i18n="load_more">Cargar Más Vídeos</button>
       </div>
     </section>
   </main>
 
   <!-- FOOTER -->
-  <footer style="border-top:1px solid rgba(255,255,255,.1);background:#09090b;padding:3.5rem 1.5rem 2rem;">
+  <footer style="border-top:1px solid rgba(255,255,255,.1);background:#09090b;padding:3rem 1.5rem 2rem;">
     <div style="max-width:1600px;margin:0 auto;">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2rem;margin-bottom:2.5rem;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:2rem;margin-bottom:2rem;">
         <div style="grid-column:span 2;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;">
-            <div style="background:linear-gradient(135deg,#dc2626,#ea580c);width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
-            </div>
-            <span style="font-size:1.25rem;font-weight:900;color:#fff;letter-spacing:-.03em;">Vid<span class="gradient-text">Xtra</span></span>
+            <div style="background:linear-gradient(135deg,#dc2626,#ea580c);width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg></div>
+            <span style="font-size:1.1rem;font-weight:900;color:#fff;letter-spacing:-.03em;">Vid<span class="g-red">Xtra</span></span>
           </div>
-          <p style="color:#71717a;font-size:.875rem;max-width:280px;line-height:1.6;margin:0 0 1rem;">The premium destination for high-quality adult entertainment.</p>
-          <div style="display:flex;align-items:center;gap:6px;color:#22c55e;font-size:.875rem;font-weight:500;">🔒 100% Secure &amp; Private</div>
+          <p data-i18n="footer_desc" style="color:#71717a;font-size:.875rem;max-width:280px;line-height:1.6;margin:0 0 1rem;">El destino premium para entretenimiento adulto de alta calidad.</p>
+          <div style="font-size:.875rem;font-weight:500;color:#22c55e;">🔒 <span data-i18n="footer_secure">100% Seguro y Privado</span></div>
         </div>
         <div>
-          <h4 style="color:#fff;font-weight:700;margin:0 0 1rem;">Discover</h4>
+          <h4 data-i18n="footer_discover" style="color:#fff;font-weight:700;margin:0 0 1rem;">Descubrir</h4>
           <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-            <li><a href="#" class="footer-link">Trending Now</a></li>
-            <li><a href="#" class="footer-link">New Releases</a></li>
-            <li><a href="#" class="footer-link">Top Rated</a></li>
-            <li><a href="#" class="footer-link">Categories</a></li>
+            <li><a href="#" class="flink" data-i18n="cat_trending">Tendencias</a></li>
+            <li><a href="#" class="flink" data-i18n="cat_new">Nuevos</a></li>
+            <li><a href="#" class="flink" data-i18n="cat_rated">Mejor Valorados</a></li>
+            <li><a href="#" class="flink">Categorías</a></li>
           </ul>
         </div>
         <div>
-          <h4 style="color:#fff;font-weight:700;margin:0 0 1rem;">Support</h4>
+          <h4 data-i18n="footer_support" style="color:#fff;font-weight:700;margin:0 0 1rem;">Soporte</h4>
           <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-            <li><a href="#" class="footer-link">Help Center</a></li>
-            <li><a href="#" class="footer-link">Trust &amp; Safety</a></li>
-            <li><a href="#" class="footer-link">Content Removal</a></li>
-            <li><a href="#" class="footer-link">Contact Us</a></li>
+            <li><a href="#" class="flink" data-i18n="footer_help">Centro de Ayuda</a></li>
+            <li><a href="#" class="flink" data-i18n="footer_trust">Seguridad</a></li>
+            <li><a href="#" class="flink" data-i18n="footer_dmca">Retirada de Contenido</a></li>
+            <li><a href="#" class="flink" data-i18n="footer_contact">Contacto</a></li>
           </ul>
         </div>
       </div>
       <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.08);gap:1rem;">
         <div style="display:flex;flex-wrap:wrap;gap:1.25rem;">
-          <span style="color:#52525b;font-size:.75rem;">&copy; 2026 VidXtra. All rights reserved.</span>
-          <a href="#" class="footer-link">Terms of Service</a>
-          <a href="#" class="footer-link">Privacy Policy</a>
-          <a href="#" class="footer-link">Cookie Policy</a>
-          <a href="#" class="footer-link">DMCA</a>
-          <a href="#" class="footer-link">2257 Record-Keeping</a>
+          <span style="color:#52525b;font-size:.75rem;">&copy; 2026 VidXtra.</span>
+          <a href="#" class="flink">Terms of Service</a>
+          <a href="#" class="flink">Privacy Policy</a>
+          <a href="#" class="flink">DMCA</a>
+          <a href="#" class="flink">2257</a>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.1);border-radius:9999px;padding:5px 14px;font-size:.75rem;font-weight:700;color:#71717a;">
-          <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;"></span>18+ ONLY
+        <div style="display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.1);border-radius:9999px;padding:5px 14px;font-size:.75rem;font-weight:700;color:#71717a;">
+          <span style="width:7px;height:7px;border-radius:50%;background:#ef4444;display:inline-block;"></span>18+ ONLY
         </div>
       </div>
     </div>
   </footer>
-
 </div><!-- /home -->
 
 
-<!-- ════════════════════════════════════════════════════════════
-     PAGE 3 — VIDEO PLAYER
-════════════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════════════
+     VIDEO PLAYER — PAGE
+══════════════════════════════════════════════════════════ -->
 <div id="page-player" class="page">
 
   <!-- NAV -->
   <header style="position:sticky;top:0;z-index:50;display:flex;height:64px;align-items:center;justify-content:space-between;border-bottom:1px solid #27272a;background:rgba(21,21,24,.95);padding:0 1.5rem;backdrop-filter:blur(10px);">
     <div style="display:flex;align-items:center;gap:1rem;">
-      <button onclick="goToHome()" style="background:none;border:none;color:#71717a;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:.875rem;" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='#71717a'">
-        ← Back
+      <button onclick="goToHome()" style="background:none;border:none;color:#71717a;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:.875rem;" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='#71717a'">
+        ← <span data-i18n="back">Volver</span>
       </button>
-      <div style="display:flex;align-items:center;justify-content:center;background:#e11d48;border-radius:6px;padding:4px 10px;font-size:.875rem;font-weight:900;letter-spacing:-.05em;color:#fff;">VidXtra</div>
+      <div style="background:#e11d48;border-radius:6px;padding:4px 10px;font-size:.875rem;font-weight:900;letter-spacing:-.05em;color:#fff;">VidXtra</div>
     </div>
-    <div style="flex:1;max-width:520px;padding:0 2rem;position:relative;">
-      <svg style="position:absolute;left:2.75rem;top:50%;transform:translateY(-50%);pointer-events:none;" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" placeholder="Search videos, actors, categories…" style="width:100%;height:40px;background:#18181b;border:1px solid #3f3f46;border-radius:9999px;padding:0 1rem 0 2.25rem;color:#f4f4f5;font-size:.875rem;outline:none;" />
+    <div style="flex:1;max-width:500px;padding:0 2rem;position:relative;">
+      <svg style="position:absolute;left:2.75rem;top:50%;transform:translateY(-50%);pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input data-i18n-ph="search_ph" type="text" placeholder="Buscar vídeos, actores, categorías…" style="width:100%;height:40px;background:#18181b;border:1px solid #3f3f46;border-radius:9999px;padding:0 1rem 0 2.25rem;color:#f4f4f5;font-size:.875rem;outline:none;" />
     </div>
-    <div style="width:32px;height:32px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#a1a1aa;cursor:pointer;border:2px solid transparent;" onmouseenter="this.style.borderColor='#e11d48'" onmouseleave="this.style.borderColor='transparent'">U</div>
+    <div style="display:flex;align-items:center;gap:.5rem;">
+      <button class="lang-btn active" id="pl-lang-es" onclick="setLang('es')">ES</button>
+      <button class="lang-btn" id="pl-lang-en" onclick="setLang('en')">EN</button>
+      <div id="player-auth-area" style="margin-left:.5rem;"></div>
+    </div>
   </header>
 
   <main style="max-width:1800px;margin:0 auto;display:flex;gap:1.5rem;padding:1.5rem;flex-wrap:wrap;">
@@ -468,159 +428,370 @@
         <div style="position:absolute;inset:0;background:linear-gradient(135deg,#18181b,#1a1525,#18181b);">
           <div style="width:100%;height:100%;background:radial-gradient(ellipse at center,rgba(225,29,72,.15),transparent 70%);"></div>
         </div>
-        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25);">
-          <button id="big-play-btn" onclick="togglePlay(event)" style="width:80px;height:80px;border-radius:50%;background:rgba(225,29,72,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(225,29,72,.4);transition:transform .15s,background .15s;" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform='scale(1)'">
-            <svg id="big-play-icon" width="36" height="36" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+        <div id="big-play-overlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25);">
+          <button id="big-play-btn" onclick="togglePlay(event)" style="width:78px;height:78px;border-radius:50%;background:rgba(225,29,72,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(225,29,72,.4);transition:transform .15s,background .15s;" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform='scale(1)'">
+            <svg id="big-play-icon" width="34" height="34" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
           </button>
         </div>
-        <!-- Save btn -->
-        <div class="player-ctrl" style="position:absolute;right:1rem;top:1rem;">
-          <button style="display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:.75rem;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;">
-            🔖 Save
-          </button>
+        <div class="pctrl" style="position:absolute;right:1rem;top:1rem;">
+          <button style="display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:.75rem;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;" data-i18n="save_btn">🔖 Guardar</button>
         </div>
-        <!-- Controls -->
-        <div class="player-ctrl" style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.9),rgba(0,0,0,.6),transparent);padding:1.25rem 1rem 1rem;" onclick="event.stopPropagation()">
-          <div class="progress-track" style="margin-bottom:1rem;">
-            <div class="progress-buffered"></div>
-            <div class="progress-played"><div class="progress-thumb"></div></div>
+        <div class="pctrl" style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.9),rgba(0,0,0,.6),transparent);padding:1.25rem 1rem 1rem;" onclick="event.stopPropagation()">
+          <div class="prog-track" style="margin-bottom:1rem;">
+            <div class="prog-buf"></div>
+            <div class="prog-play"><div class="prog-thumb"></div></div>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;color:#f4f4f5;">
             <div style="display:flex;align-items:center;gap:1rem;">
               <button id="ctrl-play-btn" onclick="togglePlay(event)" style="background:none;border:none;color:#fff;cursor:pointer;">
-                <svg id="ctrl-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+                <svg id="ctrl-play-icon" width="19" height="19" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
               </button>
               <button style="background:none;border:none;color:#fff;cursor:pointer;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
               </button>
               <span style="font-size:.75rem;font-weight:500;letter-spacing:.05em;">12:34 <span style="color:#71717a;">/</span> 45:20</span>
             </div>
             <div style="display:flex;align-items:center;gap:1rem;">
-              <button style="display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:4px;cursor:pointer;">
-                ⬇ DL
-              </button>
+              <button style="display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:4px;cursor:pointer;">⬇ DL</button>
               <button style="background:none;border:none;color:#e11d48;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;">720p</button>
               <button style="background:none;border:none;color:#fff;cursor:pointer;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- META -->
-      <div style="display:flex;flex-direction:column;gap:1rem;padding:.5rem 0;">
+      <!-- VIDEO META -->
+      <div style="display:flex;flex-direction:column;gap:1rem;padding:.25rem 0;">
         <div>
-          <h1 style="font-size:1.375rem;font-weight:700;color:#f4f4f5;margin:0 0 .75rem;">Professional Studio — 4K Remastered Edition</h1>
+          <h1 data-i18n="video_title" style="font-size:1.375rem;font-weight:700;color:#f4f4f5;margin:0 0 .75rem;">Professional Studio — 4K Remastered Edition</h1>
           <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;">
-            <div style="display:flex;align-items:center;gap:12px;font-size:.875rem;color:#71717a;">
-              <span style="font-weight:600;color:#e4e4e7;">4.2M views</span>
-              <span>·</span><span>98% Likes</span><span>·</span><span>2 days ago</span>
+            <div style="display:flex;align-items:center;gap:10px;font-size:.875rem;color:#71717a;">
+              <span style="font-weight:600;color:#e4e4e7;">4.2M <span data-i18n="views">vistas</span></span>
+              <span>·</span><span>98% <span data-i18n="likes">likes</span></span>
+              <span>·</span><span>2 <span data-i18n="days_ago">días</span></span>
             </div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <div style="display:flex;align-items:center;background:rgba(39,39,42,.8);border-radius:9999px;padding:4px;backdrop-filter:blur(4px);">
+              <div style="display:flex;align-items:center;background:rgba(39,39,42,.8);border-radius:9999px;padding:4px;">
                 <button style="display:flex;align-items:center;gap:8px;background:none;border:none;color:#d4d4d8;font-size:.875rem;cursor:pointer;padding:6px 14px;border-radius:9999px;" onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='none'">👍 412K</button>
-                <div style="width:1px;height:16px;background:#52525b;"></div>
+                <div style="width:1px;height:15px;background:#52525b;"></div>
                 <button style="background:none;border:none;color:#a1a1aa;cursor:pointer;padding:6px 12px;border-radius:9999px;" onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='none'">👎</button>
               </div>
-              <button style="display:flex;align-items:center;gap:8px;background:rgba(39,39,42,.8);border:none;color:#d4d4d8;font-size:.875rem;cursor:pointer;padding:8px 16px;border-radius:9999px;" onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='rgba(39,39,42,.8)'">↑ Share</button>
-              <button style="display:flex;align-items:center;gap:8px;background:rgba(39,39,42,.8);border:none;color:#d4d4d8;font-size:.875rem;cursor:pointer;padding:8px 16px;border-radius:9999px;" onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='rgba(39,39,42,.8)'">🔖 Save</button>
+              <button style="display:flex;align-items:center;gap:8px;background:rgba(39,39,42,.8);border:none;color:#d4d4d8;font-size:.875rem;cursor:pointer;padding:8px 16px;border-radius:9999px;" onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='rgba(39,39,42,.8)'" data-i18n="share_btn">↑ Compartir</button>
+              <button style="display:flex;align-items:center;gap:8px;background:rgba(39,39,42,.8);border:none;color:#d4d4d8;font-size:.875rem;cursor:pointer;padding:8px 16px;border-radius:9999px;" onmouseenter="this.style.background='#3f3f46'" onmouseleave="this.style.background='rgba(39,39,42,.8)'" data-i18n="save_btn">🔖 Guardar</button>
             </div>
           </div>
         </div>
-
         <!-- Tags -->
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          <span class="tag-badge">HD</span><span class="tag-badge">Professional</span>
-          <span class="tag-badge">Exclusive</span><span class="tag-badge">Remastered</span>
-          <span class="tag-badge">Studio</span><span class="tag-badge">Premium</span>
+          <span class="tag-b">HD</span><span class="tag-b">Professional</span><span class="tag-b">Exclusive</span>
+          <span class="tag-b">Remastered</span><span class="tag-b">Studio</span><span class="tag-b">Premium</span>
         </div>
-
         <hr style="border:none;border-top:1px solid rgba(255,255,255,.08);" />
-
-        <!-- Creator -->
+        <!-- Creator block -->
         <div style="background:rgba(39,39,42,.5);border-radius:12px;padding:1rem;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
             <div style="display:flex;gap:1rem;align-items:center;">
-              <div style="width:48px;height:48px;border-radius:50%;background:#27272a;border:1px solid #3f3f46;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#a1a1aa;flex-shrink:0;">VS</div>
+              <div style="width:46px;height:46px;border-radius:50%;background:#27272a;border:1px solid #3f3f46;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:#a1a1aa;flex-shrink:0;">VS</div>
               <div>
-                <div style="font-weight:700;color:#f4f4f5;display:flex;align-items:center;gap:6px;">Vivid Studios ✓</div>
-                <p style="font-size:.75rem;color:#71717a;margin:2px 0 0;">1.2M followers</p>
+                <div style="font-weight:700;color:#f4f4f5;">Vivid Studios ✓</div>
+                <p style="font-size:.75rem;color:#71717a;margin:2px 0 0;">1.2M <span data-i18n="followers">seguidores</span></p>
               </div>
             </div>
-            <button style="background:#e11d48;border:none;color:#fff;font-weight:700;font-size:.875rem;cursor:pointer;padding:8px 20px;border-radius:9999px;" onmouseenter="this.style.background='#be123c'" onmouseleave="this.style.background='#e11d48'">Follow</button>
+            <button style="background:#e11d48;border:none;color:#fff;font-weight:700;font-size:.875rem;cursor:pointer;padding:8px 20px;border-radius:9999px;" onmouseenter="this.style.background='#be123c'" onmouseleave="this.style.background='#e11d48'" data-i18n="follow_btn">Seguir</button>
           </div>
           <div id="desc-text" style="font-size:.875rem;color:#d4d4d8;line-height:1.6;overflow:hidden;max-height:3rem;transition:max-height .3s;">
-            Experience the highest quality production in stunning 4K resolution. This remastered edition brings crystal clear details and perfect lighting to your screen.<br/><br/>
-            Starring: Alexa, Jordan · Director: M. Vance · Studio: Vivid Entertainment<br/><br/>
-            Don't forget to like and subscribe for weekly exclusive content!
+            <span data-i18n="desc_body">Experimenta la producción de mayor calidad en impresionante resolución 4K. Esta edición remasterizada trae detalles cristalinos y luz perfecta a tu pantalla.<br/><br/>Reparto: Alexa, Jordan · Director: M. Vance · Estudio: Vivid Entertainment<br/><br/>¡No olvides dar like y suscribirte para contenido exclusivo semanal!</span>
           </div>
-          <button id="desc-toggle" onclick="toggleDesc()" style="font-size:.75rem;font-weight:600;color:#71717a;background:none;border:none;cursor:pointer;margin-top:6px;padding:0;" onmouseenter="this.style.color='#f4f4f5'" onmouseleave="this.style.color='#71717a'">Show more</button>
+          <button id="desc-toggle" onclick="toggleDesc()" style="font-size:.75rem;font-weight:600;color:#71717a;background:none;border:none;cursor:pointer;margin-top:6px;padding:0;" onmouseenter="this.style.color='#f4f4f5'" onmouseleave="this.style.color='#71717a'" data-i18n="show_more">Mostrar más</button>
         </div>
 
         <!-- Comments -->
         <div style="margin-top:1.5rem;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
-            <h3 style="font-size:1.1rem;font-weight:700;color:#f4f4f5;margin:0;">💬 1,492 Comments</h3>
-            <button style="background:none;border:none;color:#a1a1aa;font-size:.875rem;cursor:pointer;">Sort by: Top ▾</button>
+            <h3 style="font-size:1.1rem;font-weight:700;color:#f4f4f5;margin:0;">💬 1,492 <span data-i18n="comments">Comentarios</span></h3>
+            <button style="background:none;border:none;color:#a1a1aa;font-size:.875rem;cursor:pointer;" data-i18n="sort_top">Ordenar: Mejores ▾</button>
           </div>
           <div style="display:flex;gap:1rem;margin-bottom:2rem;">
-            <div style="width:40px;height:40px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;color:#a1a1aa;font-size:.75rem;flex-shrink:0;">U</div>
-            <div style="flex:1;">
-              <input type="text" placeholder="Add a comment…" style="width:100%;background:transparent;border:none;border-bottom:1px solid #3f3f46;color:#f4f4f5;font-size:.875rem;padding:8px 0;outline:none;" onfocus="this.style.borderColor='#71717a'" onblur="this.style.borderColor='#3f3f46'" />
-            </div>
+            <div style="width:38px;height:38px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;color:#a1a1aa;font-size:.75rem;flex-shrink:0;">U</div>
+            <input data-i18n-ph="comment_ph" type="text" placeholder="Añade un comentario…" style="flex:1;background:transparent;border:none;border-bottom:1px solid #3f3f46;color:#f4f4f5;font-size:.875rem;padding:8px 0;outline:none;" onfocus="this.style.borderColor='#71717a'" onblur="this.style.borderColor='#3f3f46'" />
           </div>
-          <div style="display:flex;flex-direction:column;gap:1.5rem;">
-            <div style="display:flex;gap:1rem;">
-              <div style="width:40px;height:40px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;color:#a1a1aa;font-size:.875rem;font-weight:700;flex-shrink:0;">N</div>
-              <div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:.875rem;font-weight:600;color:#e4e4e7;">@nightowl88</span><span style="font-size:.75rem;color:#71717a;">1 day ago</span></div>
-              <p style="margin:6px 0 8px;font-size:.875rem;color:#d4d4d8;">The lighting in this scene is absolutely incredible. Props to the cinematography team.</p>
-              <div style="display:flex;gap:1rem;"><button class="comment-btn">👍 4.2K</button><button class="comment-btn">👎</button><button class="comment-btn" style="font-weight:600;">Reply</button></div></div>
-            </div>
-            <div style="display:flex;gap:1rem;">
-              <div style="width:40px;height:40px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;color:#a1a1aa;font-size:.875rem;font-weight:700;flex-shrink:0;">C</div>
-              <div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:.875rem;font-weight:600;color:#e4e4e7;">@cinema_fanatic</span><span style="font-size:.75rem;color:#71717a;">2 days ago</span></div>
-              <p style="margin:6px 0 8px;font-size:.875rem;color:#d4d4d8;">Finally they remastered this classic! The 4K difference is night and day.</p>
-              <div style="display:flex;gap:1rem;"><button class="comment-btn">👍 1.8K</button><button class="comment-btn">👎</button><button class="comment-btn" style="font-weight:600;">Reply</button></div></div>
-            </div>
-            <div style="display:flex;gap:1rem;">
-              <div style="width:40px;height:40px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;color:#a1a1aa;font-size:.875rem;font-weight:700;flex-shrink:0;">V</div>
-              <div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:.875rem;font-weight:600;color:#e4e4e7;">@viewer_x</span><span style="font-size:.75rem;color:#71717a;">5 hours ago</span></div>
-              <p style="margin:6px 0 8px;font-size:.875rem;color:#d4d4d8;">Audio mix seems a bit low on the dialogue, but overall a masterpiece.</p>
-              <div style="display:flex;gap:1rem;"><button class="comment-btn">👍 342</button><button class="comment-btn">👎</button><button class="comment-btn" style="font-weight:600;">Reply</button></div></div>
-            </div>
-          </div>
+          <div style="display:flex;flex-direction:column;gap:1.5rem;" id="comments-list"></div>
         </div>
       </div>
     </div><!-- /left -->
 
     <!-- SIDEBAR -->
-    <div style="width:100%;max-width:380px;flex-shrink:0;">
+    <div style="width:100%;max-width:370px;flex-shrink:0;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-        <h3 style="font-size:1.1rem;font-weight:700;color:#f4f4f5;margin:0;">Related Videos</h3>
-        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#71717a;border:1px solid #27272a;padding:3px 10px;border-radius:4px;">Auto-play ON</span>
+        <h3 style="font-size:1.1rem;font-weight:700;color:#f4f4f5;margin:0;" data-i18n="related">Vídeos Relacionados</h3>
+        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#71717a;border:1px solid #27272a;padding:3px 10px;border-radius:4px;" data-i18n="autoplay">Auto-play ON</span>
       </div>
       <div id="related-list" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
   </main>
-
 </div><!-- /player -->
 
 
-<!-- ════════════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════════════════ -->
+
+<!-- REGISTER MODAL -->
+<div id="modal-register" class="modal-bg" onclick="closeModal('register')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div style="height:4px;background:linear-gradient(90deg,#dc2626,#ea580c);"></div>
+    <div style="padding:2rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;">
+        <div>
+          <h3 style="font-size:1.375rem;font-weight:800;color:#fff;margin:0 0 4px;letter-spacing:-.02em;" data-i18n="reg_title">Crear cuenta</h3>
+          <p style="font-size:.875rem;color:#71717a;margin:0;" data-i18n="reg_sub">Gratis. Sin la pantalla de edad nunca más.</p>
+        </div>
+        <button onclick="closeModal('register')" style="background:none;border:none;color:#71717a;cursor:pointer;font-size:1.5rem;line-height:1;" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='#71717a'">×</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.875rem;">
+        <div>
+          <label style="display:block;font-size:.8125rem;font-weight:600;color:#a1a1aa;margin-bottom:6px;" data-i18n="reg_name_label">Nombre de usuario</label>
+          <input id="reg-name" type="text" class="modal-input" data-i18n-ph="reg_name_ph" placeholder="Tu nombre de usuario" />
+        </div>
+        <div>
+          <label style="display:block;font-size:.8125rem;font-weight:600;color:#a1a1aa;margin-bottom:6px;" data-i18n="reg_email_label">Correo electrónico</label>
+          <input id="reg-email" type="email" class="modal-input" placeholder="tu@correo.com" />
+        </div>
+        <div>
+          <label style="display:block;font-size:.8125rem;font-weight:600;color:#a1a1aa;margin-bottom:6px;" data-i18n="reg_pass_label">Contraseña</label>
+          <input id="reg-pass" type="password" class="modal-input" data-i18n-ph="reg_pass_ph" placeholder="Mínimo 8 caracteres" />
+        </div>
+        <div>
+          <label style="display:block;font-size:.8125rem;font-weight:600;color:#a1a1aa;margin-bottom:6px;" data-i18n="reg_pass2_label">Confirmar contraseña</label>
+          <input id="reg-pass2" type="password" class="modal-input" data-i18n-ph="reg_pass2_ph" placeholder="Repite la contraseña" />
+        </div>
+        <!-- Age confirm inside register -->
+        <div style="display:flex;align-items:flex-start;gap:10px;background:rgba(9,9,11,.5);border:1px solid rgba(63,63,70,.5);border-radius:8px;padding:.875rem;">
+          <input type="checkbox" id="reg-age-check" style="width:16px;height:16px;accent-color:#ea580c;cursor:pointer;margin-top:2px;flex-shrink:0;" />
+          <label for="reg-age-check" style="font-size:.8125rem;color:#d4d4d8;cursor:pointer;line-height:1.5;" data-i18n="reg_age_check">Confirmo que tengo 18 años o más y acepto los Términos de Servicio y la Política de Privacidad.</label>
+        </div>
+        <button class="modal-btn-main" onclick="doRegister()" id="reg-submit-btn" data-i18n="reg_submit">Crear mi cuenta</button>
+        <div class="modal-divider" data-i18n="or_divider">o</div>
+        <p style="text-align:center;font-size:.875rem;color:#71717a;margin:0;">
+          <span data-i18n="reg_have_account">¿Ya tienes cuenta?</span>&nbsp;
+          <button class="modal-btn-ghost" onclick="switchModal('register','login')"><span data-i18n="reg_login_link">Iniciar sesión</span></button>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div id="modal-login" class="modal-bg" onclick="closeModal('login')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div style="height:4px;background:linear-gradient(90deg,#dc2626,#ea580c);"></div>
+    <div style="padding:2rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;">
+        <div>
+          <h3 style="font-size:1.375rem;font-weight:800;color:#fff;margin:0 0 4px;letter-spacing:-.02em;" data-i18n="login_title">Iniciar sesión</h3>
+          <p style="font-size:.875rem;color:#71717a;margin:0;" data-i18n="login_sub">Bienvenido de vuelta a VidXtra.</p>
+        </div>
+        <button onclick="closeModal('login')" style="background:none;border:none;color:#71717a;cursor:pointer;font-size:1.5rem;line-height:1;" onmouseenter="this.style.color='#fff'" onmouseleave="this.style.color='#71717a'">×</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.875rem;">
+        <div>
+          <label style="display:block;font-size:.8125rem;font-weight:600;color:#a1a1aa;margin-bottom:6px;" data-i18n="reg_email_label">Correo electrónico</label>
+          <input id="login-email" type="email" class="modal-input" placeholder="tu@correo.com" />
+        </div>
+        <div>
+          <label style="display:block;font-size:.8125rem;font-weight:600;color:#a1a1aa;margin-bottom:6px;" data-i18n="reg_pass_label">Contraseña</label>
+          <input id="login-pass" type="password" class="modal-input" data-i18n-ph="reg_pass_ph" placeholder="Tu contraseña" />
+        </div>
+        <div style="display:flex;align-items:center;justify-content:flex-end;">
+          <button class="modal-btn-ghost" style="font-size:.8125rem;" data-i18n="forgot_pass">¿Olvidaste tu contraseña?</button>
+        </div>
+        <button class="modal-btn-main" onclick="doLogin()" data-i18n="login_submit">Entrar</button>
+        <div class="modal-divider" data-i18n="or_divider">o</div>
+        <p style="text-align:center;font-size:.875rem;color:#71717a;margin:0;">
+          <span data-i18n="login_no_account">¿No tienes cuenta?</span>&nbsp;
+          <button class="modal-btn-ghost" onclick="switchModal('login','register')"><span data-i18n="login_reg_link">Crear cuenta gratis</span></button>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+
+<!-- ══════════════════════════════════════════════════════════
      JAVASCRIPT
-════════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════════════════════ -->
 <script>
-/* ───────────────────────────────────────
-   DATA
-─────────────────────────────────────── */
-const CINEMAS = ['dark-cinema-1','dark-cinema-2','dark-cinema-3','dark-cinema-4','dark-cinema-5'];
-const AV_COLORS = ['#3f3f46','#27272a','#18181b','#1c1917','#1e1b4b'];
+/* ─── i18n ─────────────────────────────────────────────── */
+const STRINGS = {
+  es: {
+    ag_title: "Debes tener 18 años o más para entrar",
+    ag_subtitle: "Este sitio contiene material para adultos. Al entrar confirmas que tienes la edad legal en tu país para ver contenido explícito y que acceder no viola ninguna ley local.",
+    ag_enter: "✓ \u00a0Tengo 18 o más — Entrar",
+    ag_exit: "Tengo menos de 18 — Salir",
+    ag_reg_cta: "¿Ya tienes cuenta? Inicia sesión para entrar directamente y no ver esta pantalla nunca más.",
+    ag_login_btn: "Iniciar sesión",
+    ag_reg_btn: "Crear cuenta gratis",
+    ag_remember_label: "Recordar mi edad",
+    ag_remember_desc: "Guarda tu preferencia en este navegador. No actives esto en un dispositivo compartido.",
+    ag_legal_title: "Cumplimiento Legal",
+    ag_legal_text: "Todos los modelos tenían 18 años o más en el momento de la producción. Operamos cumpliendo con 18 U.S.C. § 2257, GDPR y la LSSI de España. El material ilegal está estrictamente prohibido. Al acceder aceptas nuestros Términos de Servicio y Política de Privacidad.",
+    nav_home: "Inicio", nav_trending: "Tendencias", nav_new: "Nuevo", nav_cats: "Categorías",
+    search_ph: "Buscar vídeos, creadores, categorías…",
+    hero_badge: "#1 Tendencia Esta Semana",
+    hero_sub: "Estreno Exclusivo",
+    hero_desc: "Una obra maestra cinematográfica con los mejores creadores del año en impresionante 4K HDR.",
+    hero_watch: "Ver Ahora", hero_list: "Mi Lista",
+    cat_trending: "Tendencias", cat_new: "Nuevos", cat_viewed: "Más Vistos",
+    cat_rated: "Mejor Valorados", cat_amateur: "Amateur", cat_pro: "Profesional", cat_ai: "Contenido IA",
+    section_trending: "Tendencias", see_all: "Ver todo →",
+    section_creators: "Creadores Destacados",
+    section_rec: "Recomendados Para Ti", filter_btn: "☰ Filtrar", load_more: "Cargar Más Vídeos",
+    footer_desc: "El destino premium para entretenimiento adulto de alta calidad.",
+    footer_secure: "100% Seguro y Privado", footer_discover: "Descubrir", footer_support: "Soporte",
+    footer_help: "Centro de Ayuda", footer_trust: "Seguridad", footer_dmca: "Retirada de Contenido", footer_contact: "Contacto",
+    back: "Volver",
+    video_title: "Professional Studio — 4K Remastered Edition",
+    views: "vistas", likes: "likes", days_ago: "días",
+    save_btn: "🔖 Guardar", share_btn: "↑ Compartir",
+    desc_body: "Experimenta la producción de mayor calidad en impresionante resolución 4K. Esta edición remasterizada trae detalles cristalinos y luz perfecta a tu pantalla.<br/><br/>Reparto: Alexa, Jordan · Director: M. Vance · Estudio: Vivid Entertainment<br/><br/>¡No olvides dar like y suscribirte para contenido exclusivo semanal!",
+    show_more: "Mostrar más", show_less: "Mostrar menos",
+    followers: "seguidores", follow_btn: "Seguir",
+    comments: "Comentarios", sort_top: "Ordenar: Mejores ▾", comment_ph: "Añade un comentario…",
+    related: "Vídeos Relacionados", autoplay: "Auto-play ON",
+    reg_title: "Crear cuenta", reg_sub: "Gratis. Sin la pantalla de edad nunca más.",
+    reg_name_label: "Nombre de usuario", reg_name_ph: "Tu nombre de usuario",
+    reg_email_label: "Correo electrónico",
+    reg_pass_label: "Contraseña", reg_pass_ph: "Mínimo 8 caracteres",
+    reg_pass2_label: "Confirmar contraseña", reg_pass2_ph: "Repite la contraseña",
+    reg_age_check: "Confirmo que tengo 18 años o más y acepto los Términos de Servicio y la Política de Privacidad.",
+    reg_submit: "Crear mi cuenta",
+    reg_have_account: "¿Ya tienes cuenta?", reg_login_link: "Iniciar sesión",
+    or_divider: "o",
+    login_title: "Iniciar sesión", login_sub: "Bienvenido de vuelta a VidXtra.",
+    forgot_pass: "¿Olvidaste tu contraseña?",
+    login_submit: "Entrar",
+    login_no_account: "¿No tienes cuenta?", login_reg_link: "Crear cuenta gratis",
+    logout_btn: "Cerrar sesión",
+    toast_registered: "¡Cuenta creada! Bienvenido/a a VidXtra 🎉",
+    toast_logged_in: "¡Sesión iniciada! Bienvenido/a de vuelta 👋",
+    toast_logged_out: "Sesión cerrada correctamente.",
+    err_fill: "Por favor, completa todos los campos.",
+    err_pass_match: "Las contraseñas no coinciden.",
+    err_pass_short: "La contraseña debe tener al menos 8 caracteres.",
+    err_age_check: "Debes confirmar que tienes 18 años o más.",
+    err_email: "Introduce un correo electrónico válido.",
+    err_login: "Correo o contraseña incorrectos.",
+  },
+  en: {
+    ag_title: "You must be 18 years or older to enter",
+    ag_subtitle: "This website contains adult material. By entering, you confirm that you are of legal age in your jurisdiction to view sexually explicit content and that accessing such material does not violate any local laws.",
+    ag_enter: "✓ \u00a0I am 18 or older — Enter",
+    ag_exit: "I am under 18 — Exit",
+    ag_reg_cta: "Already have an account? Sign in to enter directly and never see this screen again.",
+    ag_login_btn: "Sign in",
+    ag_reg_btn: "Create free account",
+    ag_remember_label: "Remember my age",
+    ag_remember_desc: "Saves your preference in this browser. Do not enable this on a shared device.",
+    ag_legal_title: "Legal Compliance",
+    ag_legal_text: "All models appearing on this website were 18 years or older at the time of production. This site operates in strict compliance with 18 U.S.C. § 2257, GDPR, and Spain's LSSI. Illegal material is strictly prohibited. By accessing you agree to our Terms of Service and Privacy Policy.",
+    nav_home: "Home", nav_trending: "Trending", nav_new: "New", nav_cats: "Categories",
+    search_ph: "Search videos, creators, categories…",
+    hero_badge: "#1 Trending This Week",
+    hero_sub: "Exclusive Premiere",
+    hero_desc: "A cinematic masterpiece featuring the top creators of the year in stunning 4K HDR.",
+    hero_watch: "Watch Now", hero_list: "My List",
+    cat_trending: "Trending", cat_new: "New Releases", cat_viewed: "Most Viewed",
+    cat_rated: "Top Rated", cat_amateur: "Amateur", cat_pro: "Professional", cat_ai: "AI Content",
+    section_trending: "Trending Now", see_all: "See All →",
+    section_creators: "Featured Creators",
+    section_rec: "Recommended For You", filter_btn: "☰ Filter", load_more: "Load More Videos",
+    footer_desc: "The premium destination for high-quality adult entertainment.",
+    footer_secure: "100% Secure & Private", footer_discover: "Discover", footer_support: "Support",
+    footer_help: "Help Center", footer_trust: "Trust & Safety", footer_dmca: "Content Removal", footer_contact: "Contact Us",
+    back: "Back",
+    video_title: "Professional Studio — 4K Remastered Edition",
+    views: "views", likes: "likes", days_ago: "days ago",
+    save_btn: "🔖 Save", share_btn: "↑ Share",
+    desc_body: "Experience the highest quality production in stunning 4K resolution. This remastered edition brings crystal clear details and perfect lighting to your screen.<br/><br/>Starring: Alexa, Jordan · Director: M. Vance · Studio: Vivid Entertainment<br/><br/>Don't forget to like and subscribe for weekly exclusive content!",
+    show_more: "Show more", show_less: "Show less",
+    followers: "followers", follow_btn: "Follow",
+    comments: "Comments", sort_top: "Sort by: Top ▾", comment_ph: "Add a comment…",
+    related: "Related Videos", autoplay: "Auto-play ON",
+    reg_title: "Create account", reg_sub: "Free. Never see the age screen again.",
+    reg_name_label: "Username", reg_name_ph: "Your username",
+    reg_email_label: "Email address",
+    reg_pass_label: "Password", reg_pass_ph: "At least 8 characters",
+    reg_pass2_label: "Confirm password", reg_pass2_ph: "Repeat your password",
+    reg_age_check: "I confirm that I am 18 years or older and I accept the Terms of Service and Privacy Policy.",
+    reg_submit: "Create my account",
+    reg_have_account: "Already have an account?", reg_login_link: "Sign in",
+    or_divider: "or",
+    login_title: "Sign in", login_sub: "Welcome back to VidXtra.",
+    forgot_pass: "Forgot your password?",
+    login_submit: "Sign in",
+    login_no_account: "Don't have an account?", login_reg_link: "Create free account",
+    logout_btn: "Sign out",
+    toast_registered: "Account created! Welcome to VidXtra 🎉",
+    toast_logged_in: "Signed in! Welcome back 👋",
+    toast_logged_out: "Signed out successfully.",
+    err_fill: "Please fill in all fields.",
+    err_pass_match: "Passwords do not match.",
+    err_pass_short: "Password must be at least 8 characters.",
+    err_age_check: "You must confirm you are 18 years or older.",
+    err_email: "Please enter a valid email address.",
+    err_login: "Incorrect email or password.",
+  }
+};
+
+let currentLang = localStorage.getItem('vx_lang') || 'es';
+
+function t(key) {
+  return STRINGS[currentLang][key] || STRINGS['es'][key] || key;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('vx_lang', lang);
+  // Update all i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (STRINGS[lang][key] !== undefined) {
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.value = STRINGS[lang][key];
+      } else {
+        el.innerHTML = STRINGS[lang][key];
+      }
+    }
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (STRINGS[lang][key] !== undefined) el.placeholder = STRINGS[lang][key];
+  });
+  // Update lang toggle buttons
+  ['ag','home','pl'].forEach(prefix => {
+    const esBtn = document.getElementById(prefix+'-lang-es');
+    const enBtn = document.getElementById(prefix+'-lang-en');
+    if (esBtn) { esBtn.classList.toggle('active', lang==='es'); enBtn.classList.toggle('active', lang==='en'); }
+  });
+  // Update desc toggle text
+  const dt = document.getElementById('desc-toggle');
+  if (dt) dt.textContent = descOpen ? t('show_less') : t('show_more');
+}
+
+/* ─── DATA ─────────────────────────────────────────────── */
+const DCS = ['dc1','dc2','dc3','dc4','dc5'];
+const AVS = ['av1','av2','av3','av4','av5'];
+const AVC = ['#3f3f46','#27272a','#18181b','#1c1917','#1e1b4b'];
 
 const TRENDING_DATA = [
   { title:"Midnight Desires: The CEO's Secret", views:"3.2M", duration:"45:12", quality:"4K", creator:"LuxeStudios" },
   { title:"Late Night Confessions Part 3", views:"2.1M", duration:"32:05", quality:"HD", creator:"AmateurNights" },
-  { title:"The Poolboy's Revenge: A Summer Fling", views:"1.8M", duration:"55:30", quality:"4K", creator:"SunnyDays" },
+  { title:"The Poolboy's Revenge", views:"1.8M", duration:"55:30", quality:"4K", creator:"SunnyDays" },
   { title:"Neon Dreams & Velvet Ropes", views:"4.5M", duration:"1:12:00", quality:"4K", creator:"VIPExclusive" },
   { title:"College Roommates: Final Exams", views:"5.6M", duration:"28:45", quality:"HD", creator:"CampusCrush" },
   { title:"Behind Closed Doors: The Interview", views:"1.2M", duration:"41:20", quality:"4K", creator:"CorporateTales" },
@@ -635,7 +806,7 @@ const GRID_DATA = [
   { title:"The Photographer's Muse", views:"945K", duration:"44:20", quality:"4K", creator:"ArtisticVisions", days:4 },
   { title:"Midnight Swim in Cabo", views:"1.5M", duration:"31:10", quality:"HD", creator:"TravelDiaries", days:5 },
   { title:"Detention: The Teacher's Pet", views:"4.8M", duration:"58:05", quality:"4K", creator:"CampusCrush", days:5 },
-  { title:"Billionaire's Yacht Party Exclusives", views:"5.1M", duration:"1:25:00", quality:"4K", creator:"VIPExclusive", days:6 },
+  { title:"Billionaire's Yacht Party", views:"5.1M", duration:"1:25:00", quality:"4K", creator:"VIPExclusive", days:6 },
   { title:"Gym Crush: After Hours Session", views:"2.9M", duration:"29:30", quality:"HD", creator:"FitFanatics", days:6 },
   { title:"The Mechanic's Tune-Up", views:"1.4M", duration:"42:15", quality:"4K", creator:"GreaseMonkeys", days:7 },
   { title:"First Date Confessions", views:"820K", duration:"22:40", quality:"HD", creator:"AmateurNights", days:7 },
@@ -662,150 +833,319 @@ const RELATED_DATA = [
   { title:"Premium Selects Vol 4", views:"1.8M", time:"35:45", creator:"Premium Network" },
 ];
 
-/* ───────────────────────────────────────
-   NAVIGATION
-─────────────────────────────────────── */
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const page = document.getElementById(id);
-  page.classList.add('active');
-  window.scrollTo(0,0);
+const COMMENTS_DATA = [
+  { user:"@nightowl88", time: currentLang==='es'?"hace 1 día":"1 day ago", text:"The lighting in this scene is absolutely incredible. Props to the cinematography team.", likes:"4.2K" },
+  { user:"@cinema_fanatic", time: currentLang==='es'?"hace 2 días":"2 days ago", text:"Finally they remastered this classic! The 4K difference is night and day.", likes:"1.8K" },
+  { user:"@viewer_x", time: currentLang==='es'?"hace 5 horas":"5 hours ago", text:"Audio mix seems a bit low on the dialogue, but overall a masterpiece.", likes:"342" },
+];
+
+/* ─── PERSISTENCE ────────────────────────────────────────── */
+function isVerified() {
+  return localStorage.getItem('vx_verified') === '1' ||
+         sessionStorage.getItem('vx_verified') === '1';
+}
+function isLoggedIn() {
+  return !!localStorage.getItem('vx_user');
+}
+function getUser() {
+  try { return JSON.parse(localStorage.getItem('vx_user')); } catch { return null; }
 }
 
-function enterSite() {
-  const rem = document.getElementById('remember').checked;
-  if (rem) {
-    const exp = new Date(); exp.setDate(exp.getDate()+30);
-    document.cookie = `agv=1;expires=${exp.toUTCString()};path=/;SameSite=Lax`;
-  } else {
-    sessionStorage.setItem('agv','1');
+/* ─── PAGES ─────────────────────────────────────────────── */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goToHome() {
+  showPage('page-home');
+  renderAuthArea();
+}
+
+function goToPlayer() {
+  showPage('page-player');
+  buildPlayer();
+  renderPlayerAuthArea();
+}
+
+/* ─── AGE GATE ───────────────────────────────────────────── */
+function confirmAge() {
+  const rem = document.getElementById('ag-remember').checked;
+  localStorage.setItem('vx_verified', '1');
+  if (!rem) {
+    localStorage.removeItem('vx_verified');
+    sessionStorage.setItem('vx_verified', '1');
   }
   showPage('page-home');
   buildHome();
+  renderAuthArea();
 }
 
-function goToHome() { showPage('page-home'); }
-function goToPlayer() { showPage('page-player'); buildPlayer(); }
+/* ─── AUTH AREA RENDER ───────────────────────────────────── */
+function renderAuthArea() {
+  const area = document.getElementById('nav-auth-area');
+  if (!area) return;
+  if (isLoggedIn()) {
+    const u = getUser();
+    const initial = (u.name || u.email || 'U')[0].toUpperCase();
+    area.innerHTML = `
+      <div style="display:flex;align-items:center;gap:.75rem;">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#dc2626,#ea580c);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.875rem;color:#fff;cursor:pointer;flex-shrink:0;">${initial}</div>
+        <span style="font-size:.875rem;font-weight:500;color:#e4e4e7;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${u.name || u.email}</span>
+        <button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,.1);color:#a1a1aa;font-size:.8125rem;cursor:pointer;padding:5px 12px;border-radius:6px;transition:all .15s;" onmouseenter="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.25)'" onmouseleave="this.style.color='#a1a1aa';this.style.borderColor='rgba(255,255,255,.1)'" data-i18n="logout_btn">${t('logout_btn')}</button>
+      </div>`;
+  } else {
+    area.innerHTML = `
+      <button onclick="openModal('login')" style="background:none;border:none;color:#d4d4d8;font-size:.875rem;cursor:pointer;padding:.375rem .75rem;" data-i18n="ag_login_btn">${t('ag_login_btn')}</button>
+      <button onclick="openModal('register')" style="background:linear-gradient(90deg,#dc2626,#ea580c);border:none;color:#fff;font-size:.875rem;font-weight:600;cursor:pointer;padding:.5rem 1.25rem;border-radius:9999px;box-shadow:0 4px 14px rgba(220,38,38,.25);" data-i18n="ag_reg_btn">${t('ag_reg_btn')}</button>`;
+  }
+}
 
-/* ───────────────────────────────────────
-   BUILD HOME
-─────────────────────────────────────── */
+function renderPlayerAuthArea() {
+  const area = document.getElementById('player-auth-area');
+  if (!area) return;
+  if (isLoggedIn()) {
+    const u = getUser();
+    const initial = (u.name || u.email || 'U')[0].toUpperCase();
+    area.innerHTML = `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#dc2626,#ea580c);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.875rem;color:#fff;cursor:pointer;">${initial}</div>`;
+  } else {
+    area.innerHTML = `<button onclick="openModal('register')" style="background:linear-gradient(90deg,#dc2626,#ea580c);border:none;color:#fff;font-size:.8125rem;font-weight:600;cursor:pointer;padding:6px 14px;border-radius:9999px;">${t('ag_reg_btn')}</button>`;
+  }
+}
+
+/* ─── REGISTER ───────────────────────────────────────────── */
+function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  const ageCheck = document.getElementById('reg-age-check').checked;
+
+  if (!name || !email || !pass || !pass2) { showToast(t('err_fill')); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast(t('err_email')); return; }
+  if (pass.length < 8) { showToast(t('err_pass_short')); return; }
+  if (pass !== pass2) { showToast(t('err_pass_match')); return; }
+  if (!ageCheck) { showToast(t('err_age_check')); return; }
+
+  // Save user (demo — no real backend)
+  const user = { name, email, createdAt: Date.now() };
+  localStorage.setItem('vx_user', JSON.stringify(user));
+  localStorage.setItem('vx_verified', '1'); // registered = permanently verified
+
+  closeModal('register');
+  showToast(t('toast_registered'));
+
+  // If on age gate, go to home
+  if (document.getElementById('page-ag').classList.contains('active')) {
+    showPage('page-home');
+    buildHome();
+  }
+  renderAuthArea();
+  renderPlayerAuthArea();
+}
+
+/* ─── LOGIN ──────────────────────────────────────────────── */
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+
+  if (!email || !pass) { showToast(t('err_fill')); return; }
+
+  // Demo: check if the stored user's email matches
+  const stored = getUser();
+  if (!stored || stored.email !== email) { showToast(t('err_login')); return; }
+
+  localStorage.setItem('vx_verified', '1');
+  closeModal('login');
+  showToast(t('toast_logged_in'));
+
+  if (document.getElementById('page-ag').classList.contains('active')) {
+    showPage('page-home');
+    buildHome();
+  }
+  renderAuthArea();
+  renderPlayerAuthArea();
+}
+
+/* ─── LOGOUT ─────────────────────────────────────────────── */
+function doLogout() {
+  // Keep verified but remove user session
+  localStorage.removeItem('vx_user');
+  showToast(t('toast_logged_out'));
+  renderAuthArea();
+  renderPlayerAuthArea();
+}
+
+/* ─── MODAL ──────────────────────────────────────────────── */
+function openModal(name) {
+  document.getElementById('modal-'+name).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(name) {
+  document.getElementById('modal-'+name).classList.remove('open');
+  document.body.style.overflow = '';
+}
+function switchModal(from, to) {
+  closeModal(from);
+  setTimeout(() => openModal(to), 150);
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeModal('register');
+    closeModal('login');
+  }
+});
+
+/* ─── TOAST ──────────────────────────────────────────────── */
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+/* ─── BUILD HOME ─────────────────────────────────────────── */
 let homeBuilt = false;
 function buildHome() {
   if (homeBuilt) return; homeBuilt = true;
 
-  /* Trending row */
+  // Trending row
   const tr = document.getElementById('trending-row');
-  TRENDING_DATA.forEach((v,i) => { tr.innerHTML += videoCard(v,i,'300px'); });
+  TRENDING_DATA.forEach((v, i) => { tr.innerHTML += videoCard(v, i, '300px'); });
 
-  /* Creators */
+  // Creators
   const cr = document.getElementById('creators-row');
-  CREATORS_DATA.forEach((c,i) => {
+  CREATORS_DATA.forEach((c, i) => {
     cr.innerHTML += `
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;text-align:center;">
       <div style="position:relative;">
-        <div style="width:72px;height:72px;border-radius:50%;background:${AV_COLORS[i%5]};border:2px solid #3f3f46;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:#a1a1aa;transition:box-shadow .2s;" onmouseenter="this.style.boxShadow='0 0 16px rgba(239,68,68,.6)'" onmouseleave="this.style.boxShadow='none'">${c.initials}</div>
-        ${c.verified?`<div style="position:absolute;bottom:0;right:0;background:#3b82f6;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border:2px solid #09090b;font-size:10px;color:#fff;">✓</div>`:''}
+        <div style="width:70px;height:70px;border-radius:50%;background:${AVC[i%5]};border:2px solid #3f3f46;display:flex;align-items:center;justify-content:center;font-size:1.05rem;font-weight:700;color:#a1a1aa;transition:box-shadow .2s;" onmouseenter="this.style.boxShadow='0 0 16px rgba(239,68,68,.6)'" onmouseleave="this.style.boxShadow='none'">${c.initials}</div>
+        ${c.verified ? `<div style="position:absolute;bottom:0;right:0;background:#3b82f6;border-radius:50%;width:19px;height:19px;display:flex;align-items:center;justify-content:center;border:2px solid #09090b;font-size:10px;color:#fff;">✓</div>` : ''}
       </div>
       <div>
         <div style="font-size:.8125rem;font-weight:600;color:#e4e4e7;">${c.name}</div>
-        <div style="font-size:.75rem;color:#71717a;">${c.followers} followers</div>
+        <div style="font-size:.725rem;color:#71717a;">${c.followers} ${t('followers')}</div>
       </div>
     </div>`;
   });
 
-  /* Grid */
+  // Grid
   const gr = document.getElementById('video-grid');
-  GRID_DATA.forEach((v,i) => { gr.innerHTML += videoCard(v,i,'100%', true); });
+  GRID_DATA.forEach((v, i) => { gr.innerHTML += videoCard(v, i, '100%'); });
+
+  // Tab clicks
+  document.querySelectorAll('.ntab').forEach(btn => {
+    btn.addEventListener('click', function() {
+      this.closest('div').querySelectorAll('.ntab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
 }
 
-function videoCard(v, i, w, clickable=false) {
-  const c = CINEMAS[i%5];
-  const qBadge = v.quality==='4K'
+function videoCard(v, i, w) {
+  const dc = DCS[i % 5];
+  const badge = v.quality === '4K'
     ? `<span style="position:absolute;top:8px;left:8px;background:rgba(220,38,38,.9);color:#fff;font-size:10px;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:4px;">PREMIUM</span>`
-    : `<span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.1);">HD</span>`;
-  const clickAttr = clickable ? `onclick="goToPlayer()"` : `onclick="goToPlayer()"`;
+    : `<span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,.65);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.1);">HD</span>`;
   return `
-  <div class="vcard card-hover-fx" style="width:${w};flex-shrink:0;cursor:pointer;" ${clickAttr}>
-    <div class="${c}" style="position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.05);">
-      ${qBadge}
-      <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.8);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.1);">⏱ ${v.duration}</div>
-      <div class="play-btn-overlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+  <div class="vcard" style="width:${w};flex-shrink:0;" onclick="goToPlayer()">
+    <div class="thumb ${dc}">
+      ${badge}
+      <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.8);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.08);">⏱ ${v.duration}</div>
+      <div class="play-ov">
         <div style="width:52px;height:52px;background:rgba(220,38,38,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(220,38,38,.5);">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
         </div>
       </div>
     </div>
     <div style="display:flex;gap:10px;padding:.5rem 4px 0;">
-      <div style="width:34px;height:34px;border-radius:50%;background:${AV_COLORS[i%5]};border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#a1a1aa;flex-shrink:0;">${v.creator.substring(0,2).toUpperCase()}</div>
+      <div style="width:33px;height:33px;border-radius:50%;background:${AVC[i%5]};border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#a1a1aa;flex-shrink:0;">${v.creator.substring(0,2).toUpperCase()}</div>
       <div>
         <div class="vcard-title line-clamp-2" style="color:#fff;font-weight:500;font-size:.875rem;line-height:1.3;transition:color .15s;">${v.title}</div>
         <div style="color:#a1a1aa;font-size:.75rem;margin-top:4px;">${v.creator}</div>
-        <div style="color:#71717a;font-size:.75rem;margin-top:2px;">${v.views} views · ${v.days?v.days+' day'+(v.days>1?'s':'')+' ago':'Just now'}</div>
+        <div style="color:#71717a;font-size:.725rem;margin-top:2px;">${v.views} ${t('views')} · ${v.days ? v.days+' '+t('days_ago') : 'Just now'}</div>
       </div>
     </div>
   </div>`;
 }
 
-/* ───────────────────────────────────────
-   BUILD PLAYER
-─────────────────────────────────────── */
+/* ─── BUILD PLAYER ───────────────────────────────────────── */
 let playerBuilt = false;
 function buildPlayer() {
   if (playerBuilt) return; playerBuilt = true;
+
+  // Related
   const rl = document.getElementById('related-list');
-  RELATED_DATA.forEach((v,i) => {
+  RELATED_DATA.forEach((v, i) => {
     rl.innerHTML += `
-    <div class="related-card">
-      <div class="${CINEMAS[i%5]}" style="position:relative;width:140px;height:84px;border-radius:8px;overflow:hidden;flex-shrink:0;">
+    <div class="rel-card">
+      <div class="${DCS[i%5]}" style="position:relative;width:140px;height:84px;border-radius:8px;overflow:hidden;flex-shrink:0;">
         <div style="position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,.8);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;">${v.time}</div>
       </div>
       <div style="display:flex;flex-direction:column;padding:2px 0;">
         <h4 class="rel-title line-clamp-2" style="font-size:.875rem;font-weight:600;line-height:1.3;color:#f4f4f5;transition:color .15s;margin:0 0 6px;">${v.title}</h4>
         <p style="font-size:.75rem;color:#a1a1aa;margin:0;">${v.creator}</p>
-        <p style="font-size:.75rem;color:#71717a;margin:2px 0 0;">${v.views} views · 1 week ago</p>
+        <p style="font-size:.725rem;color:#71717a;margin:2px 0 0;">${v.views} ${t('views')} · 1 week ago</p>
+      </div>
+    </div>`;
+  });
+
+  // Comments
+  const cl = document.getElementById('comments-list');
+  const avLetters = ['N','C','V'];
+  COMMENTS_DATA.forEach((c, i) => {
+    cl.innerHTML += `
+    <div style="display:flex;gap:1rem;">
+      <div style="width:38px;height:38px;border-radius:50%;background:#27272a;display:flex;align-items:center;justify-content:center;color:#a1a1aa;font-size:.875rem;font-weight:700;flex-shrink:0;">${avLetters[i]}</div>
+      <div>
+        <div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:.875rem;font-weight:600;color:#e4e4e7;">${c.user}</span><span style="font-size:.75rem;color:#71717a;">${c.time}</span></div>
+        <p style="margin:6px 0 8px;font-size:.875rem;color:#d4d4d8;">${c.text}</p>
+        <div style="display:flex;gap:1rem;">
+          <button style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#71717a;cursor:pointer;border:none;background:none;transition:color .15s;" onmouseenter="this.style.color='#d4d4d8'" onmouseleave="this.style.color='#71717a'">👍 ${c.likes}</button>
+          <button style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#71717a;cursor:pointer;border:none;background:none;transition:color .15s;" onmouseenter="this.style.color='#d4d4d8'" onmouseleave="this.style.color='#71717a'">👎</button>
+          <button style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:#71717a;cursor:pointer;border:none;background:none;font-weight:600;transition:color .15s;" onmouseenter="this.style.color='#d4d4d8'" onmouseleave="this.style.color='#71717a'">${currentLang==='es'?'Responder':'Reply'}</button>
+        </div>
       </div>
     </div>`;
   });
 }
 
-/* ───────────────────────────────────────
-   PLAYER CONTROLS
-─────────────────────────────────────── */
+/* ─── PLAYER CONTROLS ────────────────────────────────────── */
 let playing = false;
 function togglePlay(e) {
   if (e) e.stopPropagation();
   playing = !playing;
-  const svg = playing
+  const svgInner = playing
     ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
     : '<polygon points="5,3 19,12 5,21"/>';
-  document.getElementById('big-play-icon').innerHTML = svg;
-  document.getElementById('ctrl-play-icon').innerHTML = svg;
+  document.getElementById('big-play-icon').innerHTML = svgInner;
+  document.getElementById('ctrl-play-icon').innerHTML = svgInner;
+  document.getElementById('big-play-overlay').style.background = playing ? 'transparent' : 'rgba(0,0,0,.25)';
 }
 
 let descOpen = false;
 function toggleDesc() {
   descOpen = !descOpen;
   document.getElementById('desc-text').style.maxHeight = descOpen ? '500px' : '3rem';
-  document.getElementById('desc-toggle').textContent = descOpen ? 'Show less' : 'Show more';
+  document.getElementById('desc-toggle').textContent = descOpen ? t('show_less') : t('show_more');
 }
 
-/* ───────────────────────────────────────
-   INIT
-─────────────────────────────────────── */
-// Auto-skip age gate if already verified
-if (document.cookie.includes('agv=1') || sessionStorage.getItem('agv')==='1') {
-  showPage('page-home');
-  buildHome();
-}
+/* ─── INIT ───────────────────────────────────────────────── */
+(function init() {
+  // Apply saved language
+  setLang(currentLang);
 
-// Tab switching (visual only)
-document.querySelectorAll('.nav-tab').forEach(btn => {
-  btn.addEventListener('click', function() {
-    this.closest('div').querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    this.classList.add('active');
-  });
-});
+  // If logged in OR previously verified → skip age gate, go to home
+  if (isLoggedIn() || isVerified()) {
+    showPage('page-home');
+    buildHome();
+    renderAuthArea();
+  }
+  // else: age gate is already the active page (default in HTML)
+})();
 </script>
 </body>
 </html>
